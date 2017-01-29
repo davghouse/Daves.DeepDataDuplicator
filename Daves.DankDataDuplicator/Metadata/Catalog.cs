@@ -1,6 +1,7 @@
 ﻿using Daves.DankDataDuplicator.Helpers;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Daves.DankDataDuplicator.Metadata
 {
@@ -63,6 +64,11 @@ namespace Daves.DankDataDuplicator.Metadata
             ForeignKeyColumns.ForEach(c => c.Initialize(ForeignKeys, Tables, Columns));
             CheckConstraints.ForEach(c => c.Initialize(Tables));
         }
+
+        public virtual Table FindTable(string tableName, string schemaName = null)
+            => Tables
+            .Where(t => schemaName == null || t.Schema.Name == schemaName)
+            .Single(t => t.Name == tableName);
 
         public override string ToString()
             => $"{Tables.Count} tables with {Columns.Count} columns";

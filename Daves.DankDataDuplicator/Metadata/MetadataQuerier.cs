@@ -7,14 +7,14 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class MetadataQuerier
     {
-        protected readonly IDbConnection _connection;
-        protected readonly IDbTransaction _transaction;
-
         public MetadataQuerier(IDbConnection connection, IDbTransaction transaction = null)
         {
-            _connection = connection;
-            _transaction = transaction;
+            Connection = connection;
+            Transaction = transaction;
         }
+
+        protected IDbConnection Connection { get; }
+        protected IDbTransaction Transaction { get; }
 
         protected virtual string SchemaQuery =>
 @"SELECT
@@ -133,10 +133,10 @@ WHERE parent_object_id IN (SELECT object_id FROM sys.tables)";
 
         protected virtual IEnumerable<T> Query<T>(string query, Func<IDataRecord, T> parse)
         {
-            using (IDbCommand command = _connection.CreateCommand())
+            using (IDbCommand command = Connection.CreateCommand())
             {
                 command.CommandText = query;
-                command.Transaction = _transaction;
+                command.Transaction = Transaction;
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())

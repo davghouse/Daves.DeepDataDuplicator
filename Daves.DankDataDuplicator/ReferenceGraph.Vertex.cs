@@ -10,14 +10,13 @@ namespace Daves.DankDataDuplicator
     {
         public class Vertex
         {
-            protected readonly ReferenceGraph _referenceGraph;
-
             public Vertex(ReferenceGraph referenceGraph, Table table)
             {
-                _referenceGraph = referenceGraph;
+                ReferenceGraph = referenceGraph;
                 Table = table;
             }
 
+            protected ReferenceGraph ReferenceGraph { get; }
             public Table Table { get; }
             public IReadOnlyList<Reference> DependentReferences { get; protected set; }
             public IReadOnlyList<Reference> NonDependentReferences { get; protected set; }
@@ -31,7 +30,7 @@ namespace Daves.DankDataDuplicator
             protected virtual void InitializeDependentReferences()
             {
                 var requiredForeignKeys = Table.ChildForeignKeys
-                    .Where(k => _referenceGraph._tables.Contains(k.ReferencedTable))
+                    .Where(k => ReferenceGraph.Tables.Contains(k.ReferencedTable))
                     .Where(k => k.IsEffectivelyRequired);
 
                 foreach (var foreignKey in requiredForeignKeys)
@@ -50,7 +49,7 @@ namespace Daves.DankDataDuplicator
             {
                 var optionalForeignKeys = Table.ChildForeignKeys
                     .Where(k => k.IsReferencingPrimaryKey)
-                    .Where(k => _referenceGraph._tables.Contains(k.ReferencedTable))
+                    .Where(k => ReferenceGraph.Tables.Contains(k.ReferencedTable))
                     .Where(k => !k.IsEffectivelyRequired);
 
                 if (optionalForeignKeys.Any() && !Table.HasIdentityColumnAsPrimaryKey)

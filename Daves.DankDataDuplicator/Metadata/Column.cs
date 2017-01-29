@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Daves.DankDataDuplicator.Helpers;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Daves.DankDataDuplicator.Metadata
@@ -29,6 +30,9 @@ namespace Daves.DankDataDuplicator.Metadata
 
         public virtual void Initialize(IReadOnlyList<Table> tables)
             => Table = tables.Single(t => t.Id == TableId);
+
+        public virtual string LowercaseSpacelessName
+            => Name.ToLowercaseSpacelessName();
 
         public override string ToString()
             => $"{Table}: {Name}";

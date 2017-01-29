@@ -1,35 +1,35 @@
-﻿using Daves.DankDataDuplicator.Metadata;
+﻿using Daves.DankDataDuplicator.Helpers;
+using Daves.DankDataDuplicator.Metadata;
 using System.Collections.Generic;
 using System.Collections;
 using System;
 using System.Linq;
-using Daves.DankDataDuplicator.Helpers;
 
 namespace Daves.DankDataDuplicator
 {
     public partial class ReferenceGraph : IReadOnlyList<ReferenceGraph.Vertex>
     {
-        protected readonly Catalog _catalog;
-        protected readonly Table _rootTable;
-        protected readonly /*IReadOnly*/HashSet<Table> _tables;
-        protected readonly IReadOnlyList<Vertex> _orderedVertices;
-
         public ReferenceGraph(Catalog catalog, Table rootTable)
         {
-            _catalog = catalog;
-            _rootTable = rootTable;
+            Catalog = catalog;
+            RootTable = rootTable;
 
-            if (!_rootTable.HasIdentityColumnAsPrimaryKey)
-                throw new ArgumentException($"As the root table, {_rootTable} needs an identity column as its primary key.");
+            if (!RootTable.HasIdentityColumnAsPrimaryKey)
+                throw new ArgumentException($"As the root table, {RootTable} needs an identity column as its primary key.");
 
             var orderedTables = new Stack<Table>();
-            ComputeOrdering(orderedTables, new HashSet<Table>(), new HashSet<Table>(), _rootTable);
+            ComputeOrdering(orderedTables, new HashSet<Table>(), new HashSet<Table>(), RootTable);
 
-            _orderedVertices = orderedTables
+            OrderedVertices = orderedTables
                 .Select(t => new Vertex(this, t))
                 .ToReadOnlyList();
-            _orderedVertices.ForEach(v => v.Initialize());
+            OrderedVertices.ForEach(v => v.Initialize());
         }
+
+        protected Catalog Catalog { get; }
+        protected Table RootTable { get; }
+        protected /*IReadOnly*/HashSet<Table> Tables { get; }
+        protected IReadOnlyList<Vertex> OrderedVertices { get; }
 
         // DFS-based topological sort similar to the listing in: https://en.wikipedia.org/w/index.php?title=Topological_sorting&oldid=753542990.
         // Restructured to avoid recursive calls in the two special scenarios, for readability and a better error message. Table's dependent
@@ -59,9 +59,9 @@ namespace Daves.DankDataDuplicator
             orderedTables.Push(table);
         }
 
-        public Vertex this[int index] => _orderedVertices[index];
-        public int Count => _orderedVertices.Count;
-        public IEnumerator<Vertex> GetEnumerator() => _orderedVertices.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_orderedVertices).GetEnumerator();
+        public Vertex this[int index] => OrderedVertices[index];
+        public int Count => OrderedVertices.Count;
+        public IEnumerator<Vertex> GetEnumerator() => OrderedVertices.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)OrderedVertices).GetEnumerator();
     }
 }

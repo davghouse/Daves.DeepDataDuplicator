@@ -50,6 +50,9 @@ namespace Daves.DankDataDuplicator.Metadata
                 .ToReadOnlyList();
         }
 
+        public virtual string SingularSpacelessName
+            => Name.ToSingularSpacelessName();
+
         public virtual bool HasIdentityColumnAsPrimaryKey
             => PrimaryKey?.Column?.IsIdentity ?? false;
 

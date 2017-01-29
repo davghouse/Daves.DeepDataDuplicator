@@ -6,15 +6,14 @@ namespace Daves.DankDataDuplicator
     {
         public class Reference
         {
-            protected readonly Vertex _vertex;
-
             public Reference(Vertex vertex, Column parentColumn, Table referencedTable)
             {
-                _vertex = vertex;
+                Vertex = vertex;
                 ParentColumn = parentColumn;
                 ReferencedTable = referencedTable;
             }
 
+            protected Vertex Vertex { get; }
             public Column ParentColumn { get; }
             public Table ReferencedTable { get; }
         }
