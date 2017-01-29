@@ -5,9 +5,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class PrimaryKeyColumn
     {
-        protected PrimaryKeyColumn()
-        { }
-
         public PrimaryKeyColumn(object tableId, object columnId)
             : this((int)tableId, (int)columnId)
         { }
@@ -18,13 +15,13 @@ namespace Daves.DankDataDuplicator.Metadata
             ColumnId = columnId;
         }
 
-        public virtual int TableId { get; }
-        public virtual int ColumnId { get; }
-        public virtual PrimaryKey PrimaryKey { get; protected set; }
-        public virtual Table Table { get; protected set; }
-        public virtual Column Column { get; protected set; }
+        public int TableId { get; }
+        public int ColumnId { get; }
+        public PrimaryKey PrimaryKey { get; protected set; }
+        public Table Table { get; protected set; }
+        public Column Column { get; protected set; }
 
-        public virtual void SetAssociations(IReadOnlyList<PrimaryKey> primaryKeys, IReadOnlyList<Table> tables, IReadOnlyList<Column> columns)
+        public virtual void Initialize(IReadOnlyList<PrimaryKey> primaryKeys, IReadOnlyList<Table> tables, IReadOnlyList<Column> columns)
         {
             PrimaryKey = primaryKeys.Single(k => k.TableId == TableId);
             Table = tables.Single(t => t.Id == TableId);

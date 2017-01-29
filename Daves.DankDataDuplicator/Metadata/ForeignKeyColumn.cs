@@ -5,9 +5,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class ForeignKeyColumn
     {
-        protected ForeignKeyColumn()
-        { }
-
         public ForeignKeyColumn(object foreignKeyId, object parentTableId, object parentColumnId, object referencedTableId, object referencedColumnId)
             : this ((int)foreignKeyId, (int)parentTableId, (int)parentColumnId, (int)referencedTableId, (int)referencedColumnId)
         { } 
@@ -21,18 +18,18 @@ namespace Daves.DankDataDuplicator.Metadata
             ReferencedColumnId = referencedColumnId;
         }
 
-        public virtual int ForeignKeyId { get; }
-        public virtual int ParentTableId { get; }
-        public virtual int ParentColumnId { get; }
-        public virtual int ReferencedTableId { get; }
-        public virtual int ReferencedColumnId { get; }
-        public virtual ForeignKey ForeignKey { get; protected set; }
-        public virtual Table ParentTable { get; protected set; }
-        public virtual Column ParentColumn { get; protected set; }
-        public virtual Table ReferencedTable { get; protected set; }
-        public virtual Column ReferencedColumn { get; protected set; }
+        public int ForeignKeyId { get; }
+        public int ParentTableId { get; }
+        public int ParentColumnId { get; }
+        public int ReferencedTableId { get; }
+        public int ReferencedColumnId { get; }
+        public ForeignKey ForeignKey { get; protected set; }
+        public Table ParentTable { get; protected set; }
+        public Column ParentColumn { get; protected set; }
+        public Table ReferencedTable { get; protected set; }
+        public Column ReferencedColumn { get; protected set; }
 
-        public virtual void SetAssociations(IReadOnlyList<ForeignKey> foreignKeys, IReadOnlyList<Table> tables, IReadOnlyList<Column> columns)
+        public virtual void Initialize(IReadOnlyList<ForeignKey> foreignKeys, IReadOnlyList<Table> tables, IReadOnlyList<Column> columns)
         {
             ForeignKey = foreignKeys.Single(k => k.Id == ForeignKeyId);
             ParentTable = tables.Single(t => t.Id == ParentTableId);

@@ -6,9 +6,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class Table
     {
-        protected Table()
-        { }
-
         public Table(object name, object id, object schemaId)
             : this((string)name, (int)id, (int)schemaId)
         { }
@@ -20,17 +17,17 @@ namespace Daves.DankDataDuplicator.Metadata
             SchemaId = schemaId;
         }
 
-        public virtual string Name { get; }
-        public virtual int Id { get; }
-        public virtual int SchemaId { get; }
-        public virtual Schema Schema { get; protected set; }
-        public virtual IReadOnlyList<Column> Columns { get; protected set; }
-        public virtual PrimaryKey PrimaryKey { get; protected set; }
-        public virtual IReadOnlyList<ForeignKey> ChildForeignKeys { get; protected set; }
-        public virtual IReadOnlyList<ForeignKey> ReferencingForeignKeys { get; protected set; }
-        public virtual IReadOnlyList<CheckConstraint> CheckConstraints { get; protected set; }
+        public string Name { get; }
+        public int Id { get; }
+        public int SchemaId { get; }
+        public Schema Schema { get; protected set; }
+        public IReadOnlyList<Column> Columns { get; protected set; }
+        public PrimaryKey PrimaryKey { get; protected set; }
+        public IReadOnlyList<ForeignKey> ChildForeignKeys { get; protected set; }
+        public IReadOnlyList<ForeignKey> ReferencingForeignKeys { get; protected set; }
+        public IReadOnlyList<CheckConstraint> CheckConstraints { get; protected set; }
 
-        public virtual void SetAssociations(
+        public virtual void Initialize(
             IReadOnlyList<Schema> schemas,
             IReadOnlyList<Column> columns,
             IReadOnlyList<PrimaryKey> primaryKeys,
@@ -52,6 +49,9 @@ namespace Daves.DankDataDuplicator.Metadata
                 .Where(c => c.TableId == Id)
                 .ToReadOnlyList();
         }
+
+        public virtual bool HasIdentityColumnAsPrimaryKey
+            => PrimaryKey?.Column?.IsIdentity ?? false;
 
         public override string ToString()
             => $"{Schema}.{Name}";

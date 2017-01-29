@@ -5,9 +5,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class Column
     {
-        protected Column()
-        { }
-
         public Column(object tableId, object name, object columnId, object isNullable, object isIdentity, object isComputed)
             : this((int)tableId, (string)name, (int)columnId, (bool)isNullable, (bool)isIdentity, (bool)isComputed)
         { }
@@ -22,15 +19,15 @@ namespace Daves.DankDataDuplicator.Metadata
             IsComputed = isComputed;
         }
 
-        public virtual int TableId { get; }
-        public virtual string Name { get; }
-        public virtual int ColumnId { get; }
-        public virtual bool IsNullable { get; }
-        public virtual bool IsIdentity { get; }
-        public virtual bool IsComputed { get; }
-        public virtual Table Table { get; protected set; }
+        public int TableId { get; }
+        public string Name { get; }
+        public int ColumnId { get; }
+        public bool IsNullable { get; }
+        public bool IsIdentity { get; }
+        public bool IsComputed { get; }
+        public Table Table { get; protected set; }
 
-        public virtual void SetAssociations(IReadOnlyList<Table> tables)
+        public virtual void Initialize(IReadOnlyList<Table> tables)
             => Table = tables.Single(t => t.Id == TableId);
 
         public override string ToString()

@@ -6,9 +6,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class Schema
     {
-        protected Schema()
-        { }
-
         public Schema(object name, object id)
             : this((string)name, (int)id)
         { }
@@ -19,11 +16,11 @@ namespace Daves.DankDataDuplicator.Metadata
             Id = id;
         }
 
-        public virtual string Name { get; }
-        public virtual int Id { get; }
-        public virtual IReadOnlyList<Table> Tables { get; protected set; }
+        public string Name { get; }
+        public int Id { get; }
+        public IReadOnlyList<Table> Tables { get; protected set; }
 
-        public virtual void SetAssociations(IReadOnlyList<Table> tables)
+        public virtual void Initialize(IReadOnlyList<Table> tables)
             => Tables = tables
             .Where(t => t.SchemaId == Id)
             .ToReadOnlyList();

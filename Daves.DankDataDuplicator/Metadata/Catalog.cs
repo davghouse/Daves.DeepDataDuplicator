@@ -1,5 +1,4 @@
 ﻿using Daves.DankDataDuplicator.Helpers;
-using Daves.DankDataDuplicator.Metadata.Queriers;
 using System.Collections.Generic;
 using System.Data;
 
@@ -7,7 +6,8 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class Catalog
     {
-        protected Catalog()
+        public Catalog(IDbConnection connection, IDbTransaction transaction = null)
+            : this(new MetadataQuerier(connection, transaction))
         { }
 
         public Catalog(MetadataQuerier metadataQuerier)
@@ -40,31 +40,28 @@ namespace Daves.DankDataDuplicator.Metadata
             ForeignKeyColumns = foreignKeyColumns;
             CheckConstraints = checkConstraints;
 
-            SetAssociations();
+            Initialize();
         }
 
-        public static Catalog CreateForSqlServer(IDbConnection connection, IDbTransaction transaction = null)
-            => new Catalog(new SqlServerMetadataQuerier(connection, transaction));
+        public IReadOnlyList<Schema> Schemas { get; }
+        public IReadOnlyList<Table> Tables { get; }
+        public IReadOnlyList<Column> Columns { get; }
+        public IReadOnlyList<PrimaryKey> PrimaryKeys { get; }
+        public IReadOnlyList<PrimaryKeyColumn> PrimaryKeyColumns { get; }
+        public IReadOnlyList<ForeignKey> ForeignKeys { get; }
+        public IReadOnlyList<ForeignKeyColumn> ForeignKeyColumns { get; }
+        public IReadOnlyList<CheckConstraint> CheckConstraints { get; }
 
-        public virtual IReadOnlyList<Schema> Schemas { get; }
-        public virtual IReadOnlyList<Table> Tables { get; }
-        public virtual IReadOnlyList<Column> Columns { get; }
-        public virtual IReadOnlyList<PrimaryKey> PrimaryKeys { get; }
-        public virtual IReadOnlyList<PrimaryKeyColumn> PrimaryKeyColumns { get; }
-        public virtual IReadOnlyList<ForeignKey> ForeignKeys { get; }
-        public virtual IReadOnlyList<ForeignKeyColumn> ForeignKeyColumns { get; }
-        public virtual IReadOnlyList<CheckConstraint> CheckConstraints { get; }
-
-        public virtual void SetAssociations()
+        public virtual void Initialize()
         {
-            Schemas.ForEach(s => s.SetAssociations(Tables));
-            Tables.ForEach(t => t.SetAssociations(Schemas, Columns, PrimaryKeys, ForeignKeys, CheckConstraints));
-            Columns.ForEach(c => c.SetAssociations(Tables));
-            PrimaryKeys.ForEach(k => k.SetAssociations(Tables, PrimaryKeyColumns));
-            PrimaryKeyColumns.ForEach(c => c.SetAssociations(PrimaryKeys, Tables, Columns));
-            ForeignKeys.ForEach(k => k.SetAssociations(Tables, ForeignKeyColumns));
-            ForeignKeyColumns.ForEach(c => c.SetAssociations(ForeignKeys, Tables, Columns));
-            CheckConstraints.ForEach(c => c.SetAssociations(Tables));
+            Schemas.ForEach(s => s.Initialize(Tables));
+            Tables.ForEach(t => t.Initialize(Schemas, Columns, PrimaryKeys, ForeignKeys, CheckConstraints));
+            Columns.ForEach(c => c.Initialize(Tables));
+            PrimaryKeys.ForEach(k => k.Initialize(Tables, PrimaryKeyColumns));
+            PrimaryKeyColumns.ForEach(c => c.Initialize(PrimaryKeys, Tables, Columns));
+            ForeignKeys.ForEach(k => k.Initialize(Tables, ForeignKeyColumns));
+            ForeignKeyColumns.ForEach(c => c.Initialize(ForeignKeys, Tables, Columns));
+            CheckConstraints.ForEach(c => c.Initialize(Tables));
         }
 
         public override string ToString()

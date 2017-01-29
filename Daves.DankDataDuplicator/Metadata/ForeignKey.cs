@@ -6,9 +6,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class ForeignKey
     {
-        protected ForeignKey()
-        { }
-
         public ForeignKey(object name, object id, object parentTableId, object referencedTableId, object isDisabled)
             : this((string)name, (int)id, (int)parentTableId, (int)referencedTableId, (bool)isDisabled)
         { }
@@ -22,16 +19,16 @@ namespace Daves.DankDataDuplicator.Metadata
             IsDisabled = isDisabled;
         }
 
-        public virtual string Name { get; }
-        public virtual int Id { get; }
-        public virtual int ParentTableId { get; }
-        public virtual int ReferencedTableId { get; }
-        public virtual bool IsDisabled { get; }
-        public virtual Table ParentTable { get; protected set; }
-        public virtual Table ReferencedTable { get; protected set; }
-        public virtual IReadOnlyList<ForeignKeyColumn> ForeignKeyColumns { get; protected set; }
+        public string Name { get; }
+        public int Id { get; }
+        public int ParentTableId { get; }
+        public int ReferencedTableId { get; }
+        public bool IsDisabled { get; }
+        public Table ParentTable { get; protected set; }
+        public Table ReferencedTable { get; protected set; }
+        public IReadOnlyList<ForeignKeyColumn> ForeignKeyColumns { get; protected set; }
 
-        public virtual void SetAssociations(IReadOnlyList<Table> tables, IReadOnlyList<ForeignKeyColumn> foreignKeyColumns)
+        public virtual void Initialize(IReadOnlyList<Table> tables, IReadOnlyList<ForeignKeyColumn> foreignKeyColumns)
         {
             ParentTable = tables.Single(t => t.Id == ParentTableId);
             ReferencedTable = tables.Single(t => t.Id == ReferencedTableId);
@@ -39,6 +36,22 @@ namespace Daves.DankDataDuplicator.Metadata
                 .Where(fkc => fkc.ForeignKeyId == Id)
                 .ToReadOnlyList();
         }
+
+        public virtual IEnumerable<Column> ParentColumns
+            => ForeignKeyColumns
+            .Select(fkc => fkc.ParentColumn);
+
+        public virtual IEnumerable<Column> ReferencedColumns
+            => ForeignKeyColumns
+            .Select(fkc => fkc.ReferencedColumn);
+
+        public virtual bool IsEffectivelyRequired
+            => ParentColumns.All(c => !c.IsNullable
+                || c.Table.CheckConstraints.Any(cc => cc.CoalescesOver(c)));
+
+        public virtual bool IsReferencingPrimaryKey
+            => ReferencedTable.PrimaryKey?.Columns
+            .All(c => ReferencedColumns.Contains(c)) ?? false;
 
         public override string ToString()
             => $"{ParentTable} to {ReferencedTable}: {Name}";

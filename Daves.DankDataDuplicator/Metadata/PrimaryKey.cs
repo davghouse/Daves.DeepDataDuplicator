@@ -6,9 +6,6 @@ namespace Daves.DankDataDuplicator.Metadata
 {
     public class PrimaryKey
     {
-        protected PrimaryKey()
-        { }
-
         public PrimaryKey(object tableId, object name)
             : this((int)tableId, (string)name)
         { }
@@ -19,18 +16,24 @@ namespace Daves.DankDataDuplicator.Metadata
             Name = name;
         }
 
-        public virtual int TableId { get; }
-        public virtual string Name { get; }
-        public virtual Table Table { get; protected set; }
-        public virtual IReadOnlyList<PrimaryKeyColumn> PrimaryKeyColumns { get; protected set; }
+        public int TableId { get; }
+        public string Name { get; }
+        public Table Table { get; protected set; }
+        public IReadOnlyList<PrimaryKeyColumn> PrimaryKeyColumns { get; protected set; }
 
-        public virtual void SetAssociations(IReadOnlyList<Table> tables, IReadOnlyList<PrimaryKeyColumn> primaryKeyColumns)
+        public virtual void Initialize(IReadOnlyList<Table> tables, IReadOnlyList<PrimaryKeyColumn> primaryKeyColumns)
         {
             Table = tables.Single(t => t.Id == TableId);
             PrimaryKeyColumns = primaryKeyColumns
                 .Where(c => c.TableId == TableId)
                 .ToReadOnlyList();
         }
+
+        public virtual IEnumerable<Column> Columns
+            => PrimaryKeyColumns.Select(c => c.Column);
+
+        public virtual Column Column
+            => PrimaryKeyColumns.Count == 1 ? PrimaryKeyColumns[0].Column : null;
 
         public override string ToString()
             => $"{Table}: {Name}";
