@@ -25,6 +25,9 @@ namespace Daves.DankDataDuplicator.Metadata
             .Where(t => t.SchemaId == Id)
             .ToReadOnlyList();
 
+        public virtual string SpacelessName
+            => Name.ToSpacelessName();
+
         public override string ToString()
             => Name;
     }

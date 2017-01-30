@@ -53,12 +53,12 @@ namespace Daves.DankDataDuplicator
                     .Where(k => !k.IsEffectivelyRequired);
 
                 if (optionalForeignKeys.Any() && !Table.HasIdentityColumnAsPrimaryKey)
-                    throw new NotSupportedException($"In order to update its optional foreign keys, {Table} needs an identity column as its primary key.");
+                    throw new ArgumentException($"In order to update its optional foreign keys, {Table} needs an identity column as its primary key.");
 
                 foreach (var foreignKey in optionalForeignKeys)
                 {
                     if (!foreignKey.ReferencedTable.HasIdentityColumnAsPrimaryKey)
-                        throw new NotSupportedException($"{Table}'s {foreignKey.Name} needs to reference an identity primary key in order to be updated.");
+                        throw new ArgumentException($"As a table with referencing tables, {foreignKey.ReferencedTable} needs an identity column as its primary key.");
                 }
 
                 NonDependentReferences = BuildReferences(optionalForeignKeys);

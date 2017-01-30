@@ -34,6 +34,9 @@ namespace Daves.DankDataDuplicator.Metadata
         public virtual string LowercaseSpacelessName
             => Name.ToLowercaseSpacelessName();
 
+        public bool IsCopyable
+            => !IsIdentity && !IsComputed;
+
         public override string ToString()
             => $"{Table}: {Name}";
     }

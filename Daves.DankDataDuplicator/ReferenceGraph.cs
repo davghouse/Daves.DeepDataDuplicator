@@ -1,8 +1,8 @@
 ﻿using Daves.DankDataDuplicator.Helpers;
 using Daves.DankDataDuplicator.Metadata;
+using System;
 using System.Collections.Generic;
 using System.Collections;
-using System;
 using System.Linq;
 
 namespace Daves.DankDataDuplicator
@@ -11,30 +11,26 @@ namespace Daves.DankDataDuplicator
     {
         public ReferenceGraph(Catalog catalog, Table rootTable)
         {
-            Catalog = catalog;
-            RootTable = rootTable;
+            if (!rootTable.HasIdentityColumnAsPrimaryKey)
+                throw new ArgumentException($"As the root table, {rootTable} needs an identity column as its primary key.");
 
-            if (!RootTable.HasIdentityColumnAsPrimaryKey)
-                throw new ArgumentException($"As the root table, {RootTable} needs an identity column as its primary key.");
+            var tables = new Stack<Table>();
+            ComputeOrdering(tables, new HashSet<Table>(), new HashSet<Table>(), rootTable);
 
-            var orderedTables = new Stack<Table>();
-            ComputeOrdering(orderedTables, new HashSet<Table>(), new HashSet<Table>(), RootTable);
-
-            OrderedVertices = orderedTables
+            Tables = tables.ToReadOnlyList();
+            Vertices = Tables
                 .Select(t => new Vertex(this, t))
                 .ToReadOnlyList();
-            OrderedVertices.ForEach(v => v.Initialize());
+            Vertices.ForEach(v => v.Initialize());
         }
 
-        protected Catalog Catalog { get; }
-        protected Table RootTable { get; }
-        protected /*IReadOnly*/HashSet<Table> Tables { get; }
-        protected IReadOnlyList<Vertex> OrderedVertices { get; }
+        public IReadOnlyList<Table> Tables { get; }
+        public IReadOnlyList<Vertex> Vertices { get; }
 
         // DFS-based topological sort similar to the listing in: https://en.wikipedia.org/w/index.php?title=Topological_sorting&oldid=753542990.
         // Restructured to avoid recursive calls in the two special scenarios, for readability and a better error message. Table's dependent
         // upon table (table's which reference it through a required foreign key) are added to the stack, then table is.
-        protected virtual void ComputeOrdering(Stack<Table> orderedTables, HashSet<Table> beingVisited, HashSet<Table> beenVisited, Table table)
+        protected virtual void ComputeOrdering(Stack<Table> tables, HashSet<Table> beingVisited, HashSet<Table> beenVisited, Table table)
         {
             beingVisited.Add(table);
 
@@ -50,18 +46,18 @@ namespace Daves.DankDataDuplicator
 
                 if (!beenVisited.Contains(dependentTable))
                 {
-                    ComputeOrdering(orderedTables, beingVisited, beenVisited, dependentTable);
+                    ComputeOrdering(tables, beingVisited, beenVisited, dependentTable);
                 }
             }
 
             beenVisited.Add(table);
             beingVisited.Remove(table);
-            orderedTables.Push(table);
+            tables.Push(table);
         }
 
-        public Vertex this[int index] => OrderedVertices[index];
-        public int Count => OrderedVertices.Count;
-        public IEnumerator<Vertex> GetEnumerator() => OrderedVertices.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)OrderedVertices).GetEnumerator();
+        public Vertex this[int index] => Vertices[index];
+        public int Count => Vertices.Count;
+        public IEnumerator<Vertex> GetEnumerator() => Vertices.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Vertices).GetEnumerator();
     }
 }
