@@ -11,7 +11,7 @@ namespace Daves.DeepDataDuplicator
         protected DeepCopyGenerator(
             Catalog catalog,
             Table rootTable,
-            string primaryKeyParameterName,
+            string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
             ReferenceGraph referenceGraph = null)
             : base(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)
@@ -70,10 +70,13 @@ namespace Daves.DeepDataDuplicator
         {
             var table = vertex.Table;
             var nonDependentReferences = vertex.NonDependentReferences;
-            var setStatements = nonDependentReferences
-                .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = COALESCE(j{i}.InsertedID, copy.[{r.ParentColumn.Name}])");
+            // Might as well inner join and set directly rather than left joining and coalescing if only one dependency.
+            bool useLeftJoin = nonDependentReferences.Count > 1;
+            var setStatements = useLeftJoin ? nonDependentReferences
+                .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = COALESCE(j{i}.InsertedID, copy.[{r.ParentColumn.Name}])") : nonDependentReferences
+                .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = j{i}.InsertedID");
             var joinClauses = nonDependentReferences
-                .Select((r, i) => $"LEFT JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw8}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
+                .Select((r, i) => $"{(useLeftJoin ? "LEFT " : "")}JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw8}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
 
             ProcedureBody.AppendLine($@"
     UPDATE copy
@@ -106,7 +109,7 @@ namespace Daves.DeepDataDuplicator
             ReferenceGraph referenceGraph = null)
         {
             procedureName = procedureName ?? $"Copy{rootTable.SingularSpacelessName}";
-            primaryKeyParameterName = primaryKeyParameterName ?? $"@{rootTable.PrimaryKey.Column.LowercaseSpacelessName}";
+            primaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? rootTable.DefaultPrimaryKeyParameterName);
             string parameterDefinitions = !updateParameters?.Any() ?? true
 ? $@"
     {primaryKeyParameterName} INT"
@@ -118,8 +121,8 @@ namespace Daves.DeepDataDuplicator
 $@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDefinitions}
 AS
 BEGIN
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}
-END;";
+    SET NOCOUNT ON;
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}END;";
         }
 
         public static new string GenerateProcedureBody(

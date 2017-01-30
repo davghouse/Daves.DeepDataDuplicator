@@ -70,6 +70,12 @@ namespace Daves.DeepDataDuplicator.Metadata
             .Where(t => schemaName == null || t.Schema.Name == schemaName)
             .Single(t => t.Name == tableName);
 
+        public virtual Column FindColumn(string tableName, string columnName, string schemaName = null)
+            => Tables
+            .Where(t => schemaName == null || t.Schema.Name == schemaName)
+            .Single(t => t.Name == tableName).Columns
+            .Single(c => c.Name == columnName);
+
         public override string ToString()
             => $"{Tables.Count} tables with {Columns.Count} columns";
     }

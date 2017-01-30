@@ -4,15 +4,15 @@ namespace Daves.DeepDataDuplicator.UnitTests
 {
     public static class SampleCatalogs
     {
-        // A nation has provinces, and provinces have residents. Nation acts as a top-level root for the world schema, because
+        // A nation has provinces, and provinces have residents. A Nation row acts as a top-level root, because
         // when a nation row is copied, all rows that get copied must depend only upon the copied nation row.
         public static readonly Catalog RootedWorld;
 
-        // A nation has provinces, and provinces have residents. Residents also have a nationality, which is a reference to
-        // their birth nation. Nation does not act as a top-level root for the world schema, because when a nation row is
-        // copied, residents dependent upon that nation's provinces get copied, but those same residents may be dependent
-        // upon an entirely different nation through their nationality. All rows that get copied do depend upon the copied
-        // nation row, but can also depend upon non-copied nation rows.
+        // A nation has provinces, and provinces have residents. Residents also have a nationality, which is a
+        // reference to their birth nation. A Nation row doesn't act as a top-level root, because when a nation
+        // row is copied, residents dependent upon that nation's provinces get copied, but those same residents
+        // may be dependent upon an entirely different nation through their nationality. All rows that get copied
+        // do depend upon the copied nation row, but can also depend upon non-copied nation rows.
         public static readonly Catalog UnrootedWorld;
 
         static SampleCatalogs()
@@ -25,7 +25,7 @@ namespace Daves.DeepDataDuplicator.UnitTests
         {
             var schemas = new[]
             {
-                new Schema(name: "world", id: 1),
+                new Schema(name: "dbo", id: 1),
                 new Schema(name: "sys", id: 2)
             };
             var tables = new[]
@@ -78,7 +78,7 @@ namespace Daves.DeepDataDuplicator.UnitTests
         {
             var schemas = new[]
             {
-                new Schema(name: "world", id: 1),
+                new Schema(name: "dbo", id: 1),
                 new Schema(name: "sys", id: 2)
             };
             var tables = new[]
@@ -94,6 +94,7 @@ namespace Daves.DeepDataDuplicator.UnitTests
                 new Column(tableId: 6, name: "ProvinceID", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
                 new Column(tableId: 6, name: "NationalityNationID", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
                 new Column(tableId: 6, name: "SpouseResidentID", columnId: 4, isNullable: true, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "FavoriteProvinceID", columnId: 5, isNullable: true, isIdentity: false, isComputed: false),
                 new Column(tableId: 3, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
                 new Column(tableId: 3, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
                 new Column(tableId: 3, name: "DateFounded", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
@@ -121,7 +122,8 @@ namespace Daves.DeepDataDuplicator.UnitTests
                 new ForeignKey(name: "FK_Residents_ProvinceID_Provinces_ID", id: 7, parentTableId: 6, referencedTableId: 4, isDisabled: false),
                 new ForeignKey(name: "FK_Residents_NationalityNationID_Nations_ID", id: 8, parentTableId: 6, referencedTableId: 3, isDisabled: false),
                 new ForeignKey(name: "FK_Residents_SpouseResidentID_Residents_ID", id: 9, parentTableId: 6, referencedTableId: 6, isDisabled: false),
-                new ForeignKey(name: "FK_Provinces_LeaderResidentID_Residents_ID", id: 10, parentTableId: 4, referencedTableId: 6, isDisabled: false)
+                new ForeignKey(name: "FK_Provinces_LeaderResidentID_Residents_ID", id: 10, parentTableId: 4, referencedTableId: 6, isDisabled: false),
+                new ForeignKey(name: "FK_Residents_FavoriteProvinceID_Provinces_ID", id: 11, parentTableId: 6, referencedTableId: 4, isDisabled: false)
             };
             var foreignKeyColumns = new[]
             {
@@ -129,7 +131,8 @@ namespace Daves.DeepDataDuplicator.UnitTests
                 new ForeignKeyColumn(foreignKeyId: 5, parentTableId: 4, parentColumnId: 2, referencedTableId: 3, referencedColumnId: 1),
                 new ForeignKeyColumn(foreignKeyId: 8, parentTableId: 6, parentColumnId: 3, referencedTableId: 3, referencedColumnId: 1),
                 new ForeignKeyColumn(foreignKeyId: 9, parentTableId: 6, parentColumnId: 4, referencedTableId: 6, referencedColumnId: 1),
-                new ForeignKeyColumn(foreignKeyId: 10, parentTableId: 4, parentColumnId: 5, referencedTableId: 6, referencedColumnId: 1)
+                new ForeignKeyColumn(foreignKeyId: 10, parentTableId: 4, parentColumnId: 5, referencedTableId: 6, referencedColumnId: 1),
+                new ForeignKeyColumn(foreignKeyId: 11, parentTableId: 6, parentColumnId: 5, referencedTableId: 4, referencedColumnId: 1)
             };
             var checkConstraints = new CheckConstraint[0];
 

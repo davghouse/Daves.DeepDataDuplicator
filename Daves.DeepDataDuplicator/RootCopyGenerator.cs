@@ -1,6 +1,5 @@
 ﻿using Daves.DeepDataDuplicator.Helpers;
 using Daves.DeepDataDuplicator.Metadata;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -13,14 +12,14 @@ namespace Daves.DeepDataDuplicator
         protected RootCopyGenerator(
             Catalog catalog,
             Table rootTable,
-            string primaryKeyParameterName,
+            string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
             ReferenceGraph referenceGraph = null)
         {
             Catalog = catalog;
             RootTable = rootTable;
             ReferenceGraph = referenceGraph ?? new ReferenceGraph(catalog, rootTable);
-            PrimaryKeyParameterName = primaryKeyParameterName;
+            PrimaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? RootTable.DefaultPrimaryKeyParameterName);
             UpdateParameters = updateParameters ?? new Dictionary<Column, Parameter>();
 
             GenerateTableVariables();
@@ -43,7 +42,7 @@ namespace Daves.DeepDataDuplicator
         protected ReferenceGraph ReferenceGraph { get; }
         protected string PrimaryKeyParameterName { get; }
         protected IReadOnlyDictionary<Column, Parameter> UpdateParameters { get; }
-        protected StringBuilder ProcedureBody { get; } = new StringBuilder($"    SET NOCOUNT ON;{Environment.NewLine}");
+        protected StringBuilder ProcedureBody { get; } = new StringBuilder();
         protected IDictionary<Table, string> TableVariableNames { get; } = new Dictionary<Table, string>();
 
         protected virtual void GenerateTableVariables()
@@ -102,7 +101,7 @@ namespace Daves.DeepDataDuplicator
             var table = vertex.Table;
             var dependentReferences = vertex.DependentReferences
                 // Check constraints can lead to nullable dependent reference columns. However, rows needs to be dependent
-                // on something copied, so if there's only one dependency we might as well inner join on it even if nullable.
+                // on something copied, so if there's only one dependency we might as well inner join on it regardless.
                 .Select(r => new { r.ParentColumn, r.ReferencedTable, UseLeftJoin = r.ParentColumn.IsNullable && vertex.DependentReferences.Count > 1 })
                 .ToReadOnlyList();
             var selectColumnNames = dependentReferences
@@ -117,13 +116,12 @@ namespace Daves.DeepDataDuplicator
         ) AS copy"
 : $@"
         FROM [{table.Schema.Name}].[{table.Name}] copy";
-            var joinClauses = dependentReferences 
-                .Select((r, i) => new { r.ParentColumn, r.ReferencedTable, JoinString = $"{(r.UseLeftJoin ? "LEFT " : "")}JOIN" })
-                .Select((r, i) => $"{r.JoinString} {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
+            var joinClauses = dependentReferences
+                .Select((r, i) => $"{(r.UseLeftJoin ? "LEFT " : "")}JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
             var dependentInsertColumnNames = dependentReferences
                 .Select(r => $"[{r.ParentColumn.Name}]");
             var dependentInsertColumnValues = dependentReferences
-                // The left join should leave InsertedID null only if the original value was null, since this is a root copy.
+                // A potential left join should leave InsertedID null only if the original value was null, since this is a root copy.
                 .Select((r, i) => $"j{i}InsertedID");
             var nonDependentInsertColumns = table.Columns
                 .Where(c => c.IsCopyable)
@@ -153,11 +151,12 @@ namespace Daves.DeepDataDuplicator
         {
             var table = vertex.Table;
             var nonDependentReferences = vertex.NonDependentReferences;
+            // Since this is a root copy all non-null original values should have corresponding InsertedIDs, so might as well inner join if only one dependency.
+            bool useLeftJoin = nonDependentReferences.Count > 1;
             var setStatements = nonDependentReferences
-                // No coalescing as the left join should leave InsertedID null only if the original value was null, since this is a root copy.
                 .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = j{i}.InsertedID");
             var joinClauses = nonDependentReferences
-                .Select((r, i) => $"LEFT JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw8}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
+                .Select((r, i) => $"{(useLeftJoin ? "LEFT " : "")}JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw8}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
 
             ProcedureBody.AppendLine($@"
     UPDATE copy
@@ -197,7 +196,7 @@ namespace Daves.DeepDataDuplicator
             ReferenceGraph referenceGraph = null)
         {
             procedureName = procedureName ?? $"Copy{rootTable.SingularSpacelessName}";
-            primaryKeyParameterName = primaryKeyParameterName ?? $"@{rootTable.PrimaryKey.Column.LowercaseSpacelessName}";
+            primaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? rootTable.DefaultPrimaryKeyParameterName);
             string parameterDefinitions = !updateParameters?.Any() ?? true
 ? $@"
     {primaryKeyParameterName} INT"
@@ -209,6 +208,7 @@ namespace Daves.DeepDataDuplicator
 $@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDefinitions}
 AS
 BEGIN
+    SET NOCOUNT ON;
 {GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}END;";
         }
 

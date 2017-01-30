@@ -56,6 +56,9 @@ namespace Daves.DeepDataDuplicator.Metadata
         public virtual bool HasIdentityColumnAsPrimaryKey
             => PrimaryKey?.Column?.IsIdentity ?? false;
 
+        public virtual string DefaultPrimaryKeyParameterName
+            => $"@{PrimaryKey?.Column?.LowercaseSpacelessName}";
+
         public override string ToString()
             => $"{Schema}.{Name}";
     }
