@@ -1,8 +1,8 @@
-﻿using Daves.DankDataDuplicator.Helpers;
+﻿using Daves.DeepDataDuplicator.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Daves.DankDataDuplicator.Metadata
+namespace Daves.DeepDataDuplicator.Metadata
 {
     public class ForeignKey
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Daves.DankDataDuplicator.Helpers
+namespace Daves.DeepDataDuplicator.Helpers
 {
     internal static class IEnumerableExtensions
     {

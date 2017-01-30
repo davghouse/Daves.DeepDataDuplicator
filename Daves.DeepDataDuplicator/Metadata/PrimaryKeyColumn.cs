@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Daves.DankDataDuplicator.Metadata
+namespace Daves.DeepDataDuplicator.Metadata
 {
     public class PrimaryKeyColumn
     {

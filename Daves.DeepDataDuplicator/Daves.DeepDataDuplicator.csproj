@@ -8,8 +8,8 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>Dave</Company>
     <Authors>Dave</Authors>
-    <PackageProjectUrl>https://github.com/davghouse/Daves.DankDataDuplicator</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/davghouse/Daves.DankDataDuplicator.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/davghouse/Daves.DeepDataDuplicator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/davghouse/Daves.DeepDataDuplicator.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <NoWarn>1701;1702;1705</NoWarn>

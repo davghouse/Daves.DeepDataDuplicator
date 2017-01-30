@@ -1,10 +1,10 @@
-﻿using Daves.DankDataDuplicator.Helpers;
-using Daves.DankDataDuplicator.Metadata;
+﻿using Daves.DeepDataDuplicator.Helpers;
+using Daves.DeepDataDuplicator.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Daves.DankDataDuplicator
+namespace Daves.DeepDataDuplicator
 {
     public partial class ReferenceGraph
     {

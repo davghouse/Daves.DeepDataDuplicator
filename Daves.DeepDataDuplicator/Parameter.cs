@@ -1,4 +1,4 @@
-﻿namespace Daves.DankDataDuplicator
+﻿namespace Daves.DeepDataDuplicator
 {
     public class Parameter
     {

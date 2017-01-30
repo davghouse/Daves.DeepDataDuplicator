@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Daves.DankDataDuplicator.Helpers
+namespace Daves.DeepDataDuplicator.Helpers
 {
     public static class NameExtensions
     {

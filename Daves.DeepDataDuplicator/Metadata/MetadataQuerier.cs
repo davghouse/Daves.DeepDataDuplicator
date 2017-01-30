@@ -1,9 +1,9 @@
-﻿using Daves.DankDataDuplicator.Helpers;
+﻿using Daves.DeepDataDuplicator.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Daves.DankDataDuplicator.Metadata
+namespace Daves.DeepDataDuplicator.Metadata
 {
     public class MetadataQuerier
     {

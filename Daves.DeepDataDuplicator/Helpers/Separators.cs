@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Daves.DankDataDuplicator.Helpers
+namespace Daves.DeepDataDuplicator.Helpers
 {
     public static class Separators
     {

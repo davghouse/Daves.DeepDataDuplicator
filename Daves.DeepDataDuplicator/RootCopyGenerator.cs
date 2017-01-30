@@ -1,11 +1,11 @@
-﻿using Daves.DankDataDuplicator.Helpers;
-using Daves.DankDataDuplicator.Metadata;
+﻿using Daves.DeepDataDuplicator.Helpers;
+using Daves.DeepDataDuplicator.Metadata;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 
-namespace Daves.DankDataDuplicator
+namespace Daves.DeepDataDuplicator
 {
     public class RootCopyGenerator
     {

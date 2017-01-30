@@ -1,6 +1,6 @@
-﻿using Daves.DankDataDuplicator.Metadata;
+﻿using Daves.DeepDataDuplicator.Metadata;
 
-namespace Daves.DankDataDuplicator
+namespace Daves.DeepDataDuplicator
 {
     public partial class ReferenceGraph
     {
