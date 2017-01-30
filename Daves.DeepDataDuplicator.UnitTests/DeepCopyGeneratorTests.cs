@@ -1,4 +1,5 @@
 ﻿using Daves.DeepDataDuplicator.Metadata;
+using Daves.DeepDataDuplicator.UnitTests.SampleCatalogs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
@@ -12,12 +13,12 @@ namespace Daves.DeepDataDuplicator.UnitTests
         {
             var updateParameters = new Dictionary<Column, Parameter>
             {
-                { SampleCatalogs.RootedWorld.FindColumn("Provinces", "TimeZone"), new Parameter("@toTimeZone", "VARCHAR(50)")},
+                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)")},
             };
 
             string procedure = DeepCopyGenerator.GenerateProcedure(
-                SampleCatalogs.UnrootedWorld,
-                SampleCatalogs.UnrootedWorld.FindTable("Nations"),
+                UnrootedWorld.Catalog,
+                UnrootedWorld.Catalog.FindTable("Nations"),
                 "DeepCopyNation",
                 "@fromNationID",
                 updateParameters);
@@ -25,7 +26,7 @@ namespace Daves.DeepDataDuplicator.UnitTests
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[DeepCopyNation]
     @fromNationID INT,
-    @toTimeZone VARCHAR(50)
+    @toMotto NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -55,10 +56,10 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [Name],
-        [DateFounded])
+        [FoundedDate])
     VALUES (
         Source.[Name],
-        Source.[DateFounded])
+        Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
 
@@ -76,12 +77,12 @@ BEGIN
     INSERT (
         [NationID],
         [Name],
-        [TimeZone],
+        [Motto],
         [LeaderResidentID])
     VALUES (
         j0InsertedID,
         Source.[Name],
-        Source.[TimeZone],
+        @toMotto,
         Source.[LeaderResidentID])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;

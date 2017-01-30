@@ -1,4 +1,5 @@
 using Daves.DeepDataDuplicator.Metadata;
+using Daves.DeepDataDuplicator.UnitTests.SampleCatalogs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
@@ -11,8 +12,8 @@ namespace Daves.DeepDataDuplicator.UnitTests
         public void GenerateDefaultProcedure_ForRootedWorld()
         {
             string procedure = RootCopyGenerator.GenerateProcedure(
-                SampleCatalogs.RootedWorld,
-                SampleCatalogs.RootedWorld.FindTable("Nations"));
+                RootedWorld.Catalog,
+                RootedWorld.Catalog.FindTable("Nations"));
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyNation]
@@ -41,10 +42,10 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [Name],
-        [DateFounded])
+        [FoundedDate])
     VALUES (
         Source.[Name],
-        Source.[DateFounded])
+        Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
 
@@ -62,11 +63,11 @@ BEGIN
     INSERT (
         [NationID],
         [Name],
-        [TimeZone])
+        [Motto])
     VALUES (
         j0InsertedID,
         Source.[Name],
-        Source.[TimeZone])
+        Source.[Motto])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
 
@@ -92,8 +93,8 @@ END;", procedure);
         public void GenerateDefaultProcedureBody_ForRootedWorld()
         {
             string procedureBody = RootCopyGenerator.GenerateProcedureBody(
-                SampleCatalogs.RootedWorld,
-                SampleCatalogs.RootedWorld.FindTable("Nations"));
+                RootedWorld.Catalog,
+                RootedWorld.Catalog.FindTable("Nations"));
 
             Assert.AreEqual(
 @"
@@ -117,10 +118,10 @@ END;", procedure);
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [Name],
-        [DateFounded])
+        [FoundedDate])
     VALUES (
         Source.[Name],
-        Source.[DateFounded])
+        Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
 
@@ -138,11 +139,11 @@ END;", procedure);
     INSERT (
         [NationID],
         [Name],
-        [TimeZone])
+        [Motto])
     VALUES (
         j0InsertedID,
         Source.[Name],
-        Source.[TimeZone])
+        Source.[Motto])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
 
@@ -169,12 +170,12 @@ END;", procedure);
         {
             var updateParameters = new Dictionary<Column, Parameter>
             {
-                { SampleCatalogs.RootedWorld.FindColumn("Provinces", "TimeZone"), new Parameter("@toTimeZone", "VARCHAR(50)")},
+                { RootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)")},
             };
 
             string procedure = RootCopyGenerator.GenerateProcedure(
-                SampleCatalogs.RootedWorld,
-                SampleCatalogs.RootedWorld.FindTable("Nations"),
+                RootedWorld.Catalog,
+                RootedWorld.Catalog.FindTable("Nations"),
                 "RootCopyNation",
                 "@fromNationID",
                 updateParameters);
@@ -182,7 +183,7 @@ END;", procedure);
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[RootCopyNation]
     @fromNationID INT,
-    @toTimeZone VARCHAR(50)
+    @toMotto NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -207,10 +208,10 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [Name],
-        [DateFounded])
+        [FoundedDate])
     VALUES (
         Source.[Name],
-        Source.[DateFounded])
+        Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
 
@@ -228,11 +229,11 @@ BEGIN
     INSERT (
         [NationID],
         [Name],
-        [TimeZone])
+        [Motto])
     VALUES (
         j0InsertedID,
         Source.[Name],
-        @toTimeZone)
+        @toMotto)
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
 
@@ -259,13 +260,13 @@ END;", procedure);
         {
             var updateParameters = new Dictionary<Column, Parameter>
             {
-                { SampleCatalogs.RootedWorld.FindColumn("Provinces", "TimeZone"), new Parameter("@toTimeZone", "VARCHAR(50)")},
+                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)")},
             };
 
             // Note it doesn't really make sense to use root copy on the unrooted world. Compare to the corresponding deep copy test.
             string procedure = RootCopyGenerator.GenerateProcedure(
-                SampleCatalogs.UnrootedWorld,
-                SampleCatalogs.UnrootedWorld.FindTable("Nations"),
+                UnrootedWorld.Catalog,
+                UnrootedWorld.Catalog.FindTable("Nations"),
                 "RootCopyNation",
                 "@fromNationID",
                 updateParameters);
@@ -273,7 +274,7 @@ END;", procedure);
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[RootCopyNation]
     @fromNationID INT,
-    @toTimeZone VARCHAR(50)
+    @toMotto NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -303,10 +304,10 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
         [Name],
-        [DateFounded])
+        [FoundedDate])
     VALUES (
         Source.[Name],
-        Source.[DateFounded])
+        Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
 
@@ -324,12 +325,12 @@ BEGIN
     INSERT (
         [NationID],
         [Name],
-        [TimeZone],
+        [Motto],
         [LeaderResidentID])
     VALUES (
         j0InsertedID,
         Source.[Name],
-        Source.[TimeZone],
+        @toMotto,
         Source.[LeaderResidentID])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
