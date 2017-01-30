@@ -37,9 +37,9 @@ namespace Daves.DeepDataDuplicator
         FROM [{table.Schema.Name}].[{table.Name}] copy";
             var joinClauses = dependentReferences 
                 .Select((r, i) => new { r.ParentColumn, r.ReferencedTable, JoinString = $"{(useLeftJoin ? "LEFT " : "")}JOIN" })
-                .Select((r, i) => $"{r.JoinString} {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn}] = j{i}.ExistingID");
+                .Select((r, i) => $"{r.JoinString} {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
             var dependentInsertColumnNames = dependentReferences
-                .Select(r => $"[{r.ParentColumn}]");
+                .Select(r => $"[{r.ParentColumn.Name}]");
             var dependentInsertColumnValues = dependentReferences
                 .Select((r, i) => useLeftJoin ? $"COALESCE(j{i}InsertedID, [{r.ParentColumn.Name}])" : $"j{i}InsertedID");
             var nonDependentInsertColumns = table.Columns

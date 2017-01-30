@@ -47,7 +47,7 @@ namespace Daves.DeepDataDuplicator.Metadata
 
         public virtual bool IsEffectivelyRequired
             => ParentColumns.All(c => !c.IsNullable
-                || c.Table.CheckConstraints.Any(cc => cc.CoalescesOver(c)));
+                || c.Table.CheckConstraints.Any(cc => !cc.IsDisabled && cc.CoalescesOver(c)));
 
         public virtual bool IsReferencingPrimaryKey
             => ReferencedTable.PrimaryKey?.Columns

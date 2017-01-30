@@ -75,16 +75,21 @@ namespace Daves.DeepDataDuplicator
                     .Select(a => new Reference(this, a.ParentColumn, a.ReferencedTable))
                     .ToReadOnlyList();
 
-                // And some last edge case handling, again for misconfigured databases.
-                var columnsDependentOnMultiplePrimaryKeys = DependentReferences
+                // And some last edge case handling, again probably just for misconfigured databases.
+                var columnsDependentOnMultiplePrimaryKeys = references
                     .GroupBy(d => d.ParentColumn)
                     .Where(g => g.Count() > 1)
                     .Select(g => g.Key);
                 if (columnsDependentOnMultiplePrimaryKeys.Any())
-                    throw new ArgumentException($"{string.Join(", ", columnsDependentOnMultiplePrimaryKeys.Select(c => c))} are dependent on multiple primary keys.");
+                    throw new ArgumentException($"{columnsDependentOnMultiplePrimaryKeys.First()} is dependent on multiple primary keys.");
 
                 return references;
             }
+
+            public virtual bool IsReferenced()
+                => ReferenceGraph.Any(v =>
+                    v.DependentReferences.Any(r => r.ReferencedTable == Table)
+                    || v.NonDependentReferences.Any(r => r.ReferencedTable == Table));
         }
     }
 }

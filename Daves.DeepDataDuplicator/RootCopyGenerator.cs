@@ -1,5 +1,6 @@
 ﻿using Daves.DeepDataDuplicator.Helpers;
 using Daves.DeepDataDuplicator.Metadata;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -42,18 +43,20 @@ namespace Daves.DeepDataDuplicator
         protected ReferenceGraph ReferenceGraph { get; }
         protected string PrimaryKeyParameterName { get; }
         protected IReadOnlyDictionary<Column, Parameter> UpdateParameters { get; }
-        protected StringBuilder ProcedureBody { get; } = new StringBuilder("    SET NOCOUNT ON;");
+        protected StringBuilder ProcedureBody { get; } = new StringBuilder($"    SET NOCOUNT ON;{Environment.NewLine}");
         protected IDictionary<Table, string> TableVariableNames { get; } = new Dictionary<Table, string>();
 
         protected virtual void GenerateTableVariables()
         {
-            var identitiedTables = ReferenceGraph.Tables
-                .Where(t => t.HasIdentityColumnAsPrimaryKey);
-            bool tableNamesAreDistinct = identitiedTables
+            var relevantTables = ReferenceGraph.Vertices
+                .Where(v => v.Table.HasIdentityColumnAsPrimaryKey)
+                .Where(v => v.IsReferenced())
+                .Select(v => v.Table);
+            bool tableNamesAreDistinct = relevantTables
                 .Select(t => t.Name)
                 .Distinct()
-                .Count() == identitiedTables.Count();
-            foreach (var table in identitiedTables)
+                .Count() == relevantTables.Count();
+            foreach (var table in relevantTables)
             {
                 string tableVariableName = $"@{(tableNamesAreDistinct ? "" : table.Schema.SpacelessName)}{table.SingularSpacelessName}IDPairs";
                 TableVariableNames.Add(table, tableVariableName);
@@ -116,9 +119,9 @@ namespace Daves.DeepDataDuplicator
         FROM [{table.Schema.Name}].[{table.Name}] copy";
             var joinClauses = dependentReferences 
                 .Select((r, i) => new { r.ParentColumn, r.ReferencedTable, JoinString = $"{(r.UseLeftJoin ? "LEFT " : "")}JOIN" })
-                .Select((r, i) => $"{r.JoinString} {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn}] = j{i}.ExistingID");
+                .Select((r, i) => $"{r.JoinString} {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
             var dependentInsertColumnNames = dependentReferences
-                .Select(r => $"[{r.ParentColumn}]");
+                .Select(r => $"[{r.ParentColumn.Name}]");
             var dependentInsertColumnValues = dependentReferences
                 // The left join should leave InsertedID null only if the original value was null, since this is a root copy.
                 .Select((r, i) => $"j{i}InsertedID");
@@ -206,8 +209,7 @@ namespace Daves.DeepDataDuplicator
 $@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDefinitions}
 AS
 BEGIN
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}
-END;";
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}END;";
         }
 
         public static string GenerateProcedureBody(
