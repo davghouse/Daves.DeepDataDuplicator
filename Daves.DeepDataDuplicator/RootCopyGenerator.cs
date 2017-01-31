@@ -214,7 +214,11 @@ $@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDefinit
 AS
 BEGIN
     SET NOCOUNT ON;
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}END;";
+    SET XACT_ABORT ON;
+    BEGIN TRAN;
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}
+    COMMIT TRAN;
+END;";
         }
 
         public static string GenerateProcedureBody(

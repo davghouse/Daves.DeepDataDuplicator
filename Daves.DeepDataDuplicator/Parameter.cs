@@ -2,6 +2,7 @@
 {
     public class Parameter
     {
+        // TODO: Improve metadata in order to make dataTypeName an optional parameter.
         public Parameter(string name, string dataTypeName)
         {
             Name = ValidateName(name);

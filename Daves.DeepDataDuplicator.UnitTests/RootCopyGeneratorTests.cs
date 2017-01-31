@@ -21,6 +21,8 @@ namespace Daves.DeepDataDuplicator.UnitTests
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRAN;
 
     DECLARE @NationIDPairs TABLE (
         ExistingID INT NOT NULL UNIQUE,
@@ -86,6 +88,8 @@ BEGIN
         [ProvinceID])
     VALUES (
         j0InsertedID);
+
+    COMMIT TRAN;
 END;", procedure);
         }
 
@@ -112,6 +116,8 @@ END;", procedure);
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRAN;
 
     DECLARE @NationIDPairs TABLE (
         ExistingID INT NOT NULL UNIQUE,
@@ -214,6 +220,8 @@ BEGIN
     LEFT JOIN @ProvinceIDPairs j1
         ON copy.[FavoriteProvinceID] = j1.ExistingID
     WHERE copy.[ID] IN (SELECT InsertedID FROM @ResidentIDPairs);
+
+    COMMIT TRAN;
 END;", procedure);
         }
 
@@ -231,6 +239,8 @@ END;", procedure);
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRAN;
 
     DECLARE @ProvinceIDPairs TABLE (
         ExistingID INT NOT NULL UNIQUE,
@@ -271,6 +281,8 @@ BEGIN
         [ProvinceID])
     VALUES (
         j0InsertedID);
+
+    COMMIT TRAN;
 END;", procedure);
         }
     }
