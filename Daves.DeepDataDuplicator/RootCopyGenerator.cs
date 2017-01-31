@@ -14,6 +14,7 @@ namespace Daves.DeepDataDuplicator
             Table rootTable,
             string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
+            bool triggersCalculatingOptionalForeignKeysExist = false,
             ReferenceGraph referenceGraph = null)
         {
             Catalog = catalog;
@@ -21,6 +22,7 @@ namespace Daves.DeepDataDuplicator
             ReferenceGraph = referenceGraph ?? new ReferenceGraph(catalog, rootTable);
             PrimaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? RootTable.DefaultPrimaryKeyParameterName);
             UpdateParameters = updateParameters ?? new Dictionary<Column, Parameter>();
+            TriggersCalculatingOptionalForeignKeysExist = triggersCalculatingOptionalForeignKeysExist;
 
             GenerateTableVariables();
             GenerateRootTableCopy();
@@ -42,6 +44,7 @@ namespace Daves.DeepDataDuplicator
         protected ReferenceGraph ReferenceGraph { get; }
         protected string PrimaryKeyParameterName { get; }
         protected IReadOnlyDictionary<Column, Parameter> UpdateParameters { get; }
+        protected bool TriggersCalculatingOptionalForeignKeysExist { get; }
         protected StringBuilder ProcedureBody { get; } = new StringBuilder();
         protected IDictionary<Table, string> TableVariableNames { get; } = new Dictionary<Table, string>();
 
@@ -49,7 +52,7 @@ namespace Daves.DeepDataDuplicator
         {
             var relevantTables = ReferenceGraph.Vertices
                 .Where(v => v.Table.HasIdentityColumnAsPrimaryKey)
-                .Where(v => v.IsReferenced())
+                .Where(v => v.IsReferenced() || v.NonDependentReferences.Any())
                 .Select(v => v.Table);
             bool tableNamesAreDistinct = relevantTables
                 .Select(t => t.Name)
@@ -151,9 +154,13 @@ namespace Daves.DeepDataDuplicator
         {
             var table = vertex.Table;
             var nonDependentReferences = vertex.NonDependentReferences;
-            // Since this is a root copy all non-null original values should have corresponding InsertedIDs, so might as well inner join if only one dependency.
+            // Since this is a root copy, all non-null original values should have corresponding InsertedIDs. It's not necessary
+            // to worry about what to do with references (between tables in the subgraph of the database discovered from whatever the
+            // root table is) to non-copied data, because there shouldn't be any such references. So if there's only one dependency,
+            // inner join, otherwise left join without a coalesce--unless triggers could've already updated data underneath us.
             bool useLeftJoin = nonDependentReferences.Count > 1;
-            var setStatements = nonDependentReferences
+            var setStatements = useLeftJoin && TriggersCalculatingOptionalForeignKeysExist ? nonDependentReferences
+                .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = COALESCE(j{i}.InsertedID, copy.[{r.ParentColumn.Name}])") : nonDependentReferences
                 .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = j{i}.InsertedID");
             var joinClauses = nonDependentReferences
                 .Select((r, i) => $"{(useLeftJoin ? "LEFT " : "")}JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw8}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
@@ -180,11 +187,12 @@ namespace Daves.DeepDataDuplicator
             IDbTransaction transaction = null,
             string procedureName = null,
             string primaryKeyParameterName = null,
+            bool triggersCalculatingOptionalForeignKeysExist = false,
             string schemaName = null)
         {
             var catalog = new Catalog(connection, transaction);
 
-            return GenerateProcedure(catalog, catalog.FindTable(rootTableName, schemaName), procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, catalog.FindTable(rootTableName, schemaName), procedureName, primaryKeyParameterName, null, triggersCalculatingOptionalForeignKeysExist);
         }
 
         public static string GenerateProcedure(
@@ -193,6 +201,7 @@ namespace Daves.DeepDataDuplicator
             string procedureName = null,
             string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
+            bool triggersCalculatingOptionalForeignKeysExist = false,
             ReferenceGraph referenceGraph = null)
         {
             procedureName = procedureName ?? $"Copy{rootTable.SingularSpacelessName}";
@@ -209,7 +218,7 @@ $@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDefinit
 AS
 BEGIN
     SET NOCOUNT ON;
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}END;";
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, triggersCalculatingOptionalForeignKeysExist, referenceGraph)}END;";
         }
 
         public static string GenerateProcedureBody(
@@ -217,11 +226,12 @@ BEGIN
             string rootTableName,
             IDbTransaction transaction = null,
             string primaryKeyParameterName = null,
+            bool triggersCalculatingOptionalForeignKeysExist = false,
             string schemaName = null)
         {
             var catalog = new Catalog(connection, transaction);
 
-            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName);
+            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName, null, triggersCalculatingOptionalForeignKeysExist);
         }
 
         public static string GenerateProcedureBody(
@@ -229,7 +239,10 @@ BEGIN
             Table rootTable,
             string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
+            bool triggersCalculatingOptionalForeignKeysExist = false,
             ReferenceGraph referenceGraph = null)
-            => new RootCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph).ProcedureBody.ToString();
+            => new RootCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameters, triggersCalculatingOptionalForeignKeysExist, referenceGraph)
+            .ProcedureBody
+            .ToString();
     }
 }

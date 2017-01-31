@@ -8,7 +8,8 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
         // reference to their birth nation. A Nation row doesn't act as a top-level root, because when a nation
         // row is copied, residents dependent upon that nation's provinces get copied, but those same residents
         // may be dependent upon an entirely different nation through their nationality. All rows that get copied
-        // do depend upon the copied nation row, but can also depend upon non-copied nation rows.
+        // do depend upon the copied nation row, but can also depend upon non-copied nation rows. Some other
+        // nullable references are included: spouse, favorite province, and leader.
         public static readonly Catalog Catalog;
 
         static UnrootedWorld()

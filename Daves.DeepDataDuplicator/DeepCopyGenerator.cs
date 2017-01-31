@@ -14,7 +14,7 @@ namespace Daves.DeepDataDuplicator
             string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
             ReferenceGraph referenceGraph = null)
-            : base(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)
+            : base(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph: referenceGraph)
         { }
 
         protected override void GenerateDependentTableCopy(ReferenceGraph.Vertex vertex)

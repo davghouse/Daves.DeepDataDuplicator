@@ -4,8 +4,8 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
 {
     public static class RootedWorld
     {
-        // A nation has provinces, and provinces have residents. A Nation row acts as a top-level root, because
-        // when a nation row is copied, all rows that get copied must depend only upon the copied nation row.
+        // A nation has provinces, and provinces have residents. A Nation row acts as the top-level root, because
+        // when a nation row is copied, all rows that get copied depend only upon the copied nation row, not a different one.
         public static readonly Catalog Catalog;
 
         static RootedWorld()

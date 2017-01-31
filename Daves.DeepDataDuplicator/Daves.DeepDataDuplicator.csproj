@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <Copyright>© 2017 Dave</Copyright>
     <Description>Uses schema metadata to generate deep copy procedures for SQL Server.</Description>
     <PackageTags>sql, deep, copy, procedure, generator, root, metadata</PackageTags>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>Dave</Company>
     <Authors>Dave</Authors>
     <PackageProjectUrl>https://github.com/davghouse/Daves.DeepDataDuplicator</PackageProjectUrl>
@@ -13,6 +13,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <NoWarn>1701;1702;1705</NoWarn>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
