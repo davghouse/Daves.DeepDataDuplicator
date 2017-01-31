@@ -66,27 +66,6 @@ namespace Daves.DeepDataDuplicator
         {string.Join(Separators.Cnlw8, dependentInsertColumnValues.Concat(nonDependentInsertColumnValues))}){GenerateOutputString(table)}");
         }
 
-        protected override void GenerateNonDependentReferenceUpdates(ReferenceGraph.Vertex vertex)
-        {
-            var table = vertex.Table;
-            var nonDependentReferences = vertex.NonDependentReferences;
-            // Might as well inner join and set directly rather than left joining and coalescing if only one dependency.
-            bool useLeftJoin = nonDependentReferences.Count > 1;
-            var setStatements = useLeftJoin ? nonDependentReferences
-                .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = COALESCE(j{i}.InsertedID, copy.[{r.ParentColumn.Name}])") : nonDependentReferences
-                .Select((r, i) => $"copy.[{r.ParentColumn.Name}] = j{i}.InsertedID");
-            var joinClauses = nonDependentReferences
-                .Select((r, i) => $"{(useLeftJoin ? "LEFT " : "")}JOIN {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw8}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
-
-            ProcedureBody.AppendLine($@"
-    UPDATE copy
-    SET
-        {string.Join(Separators.Cnlw8, setStatements)}
-    FROM [{table.Schema.Name}].[{table.Name}] copy
-    {string.Join(Separators.Nlw4, joinClauses)}
-    WHERE copy.[{table.PrimaryKey.Column.Name}] IN (SELECT InsertedID FROM {TableVariableNames[table]});");
-        }
-
         public static new string GenerateProcedure(
             IDbConnection connection,
             string rootTableName,

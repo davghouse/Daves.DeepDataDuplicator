@@ -218,7 +218,7 @@ END;", procedure);
         {
             var updateParameters = new Dictionary<Column, Parameter>
             {
-                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)")},
+                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)") },
             };
 
             string procedure = DeepCopyGenerator.GenerateProcedure(

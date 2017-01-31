@@ -94,7 +94,7 @@ END;", procedure);
         {
             var updateParameters = new Dictionary<Column, Parameter>
             {
-                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)")},
+                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)") },
             };
 
             // Note it doesn't really make sense to use root copy on the unrooted world. Compare to the corresponding deep copy test.
@@ -206,8 +206,8 @@ BEGIN
 
     UPDATE copy
     SET
-        copy.[SpouseResidentID] = j0.InsertedID,
-        copy.[FavoriteProvinceID] = j1.InsertedID
+        copy.[SpouseResidentID] = COALESCE(j0.InsertedID, copy.[SpouseResidentID]),
+        copy.[FavoriteProvinceID] = COALESCE(j1.InsertedID, copy.[FavoriteProvinceID])
     FROM [dbo].[Residents] copy
     LEFT JOIN @ResidentIDPairs j0
         ON copy.[SpouseResidentID] = j0.ExistingID
