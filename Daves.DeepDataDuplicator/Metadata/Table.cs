@@ -59,6 +59,9 @@ namespace Daves.DeepDataDuplicator.Metadata
         public virtual string DefaultPrimaryKeyParameterName
             => $"@{PrimaryKey?.Column?.LowercaseSpacelessName}";
 
+        public virtual Column FindColumn(string columnName)
+            => Columns.Single(c => c.Name == columnName);
+
         public override string ToString()
             => $"{Schema}.{Name}";
     }
