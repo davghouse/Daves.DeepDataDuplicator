@@ -29,10 +29,10 @@ namespace Daves.DeepDataDuplicator.Metadata
                 .ToReadOnlyList();
         }
 
-        public virtual IEnumerable<Column> Columns
+        public IEnumerable<Column> Columns
             => PrimaryKeyColumns.Select(c => c.Column);
 
-        public virtual Column Column
+        public Column Column
             => PrimaryKeyColumns.Count == 1 ? PrimaryKeyColumns[0].Column : null;
 
         public override string ToString()

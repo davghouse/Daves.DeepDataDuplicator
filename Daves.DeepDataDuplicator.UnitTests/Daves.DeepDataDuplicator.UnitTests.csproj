@@ -10,7 +10,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Daves.DeepDataDuplicator\Daves.DeepDataDuplicator.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SampleCatalogs\Diagrams\" />
-  </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@ namespace Daves.DeepDataDuplicator
     {
         public class Reference
         {
-            public Reference(Vertex vertex, Column parentColumn, Table referencedTable)
+            protected internal Reference(Vertex vertex, Column parentColumn, Table referencedTable)
             {
                 Vertex = vertex;
                 ParentColumn = parentColumn;

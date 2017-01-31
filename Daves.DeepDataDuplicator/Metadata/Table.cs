@@ -50,16 +50,16 @@ namespace Daves.DeepDataDuplicator.Metadata
                 .ToReadOnlyList();
         }
 
-        public virtual string SingularSpacelessName
+        public string SingularSpacelessName
             => Name.ToSingularSpacelessName();
 
-        public virtual bool HasIdentityColumnAsPrimaryKey
+        public bool HasIdentityColumnAsPrimaryKey
             => PrimaryKey?.Column?.IsIdentity ?? false;
 
         public virtual string DefaultPrimaryKeyParameterName
             => $"@{PrimaryKey?.Column?.LowercaseSpacelessName}";
 
-        public virtual Column FindColumn(string columnName)
+        public Column FindColumn(string columnName)
             => Columns.Single(c => c.Name == columnName);
 
         public override string ToString()

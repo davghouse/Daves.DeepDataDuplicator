@@ -28,20 +28,20 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
             };
             var columns = new[]
             {
-                new Column(tableId: 6, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
-                new Column(tableId: 6, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "ProvinceID", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "NationalityNationID", columnId: 4, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "SpouseResidentID", columnId: 5, isNullable: true, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "FavoriteProvinceID", columnId: 6, isNullable: true, isIdentity: false, isComputed: false),
-                new Column(tableId: 3, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
-                new Column(tableId: 3, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 3, name: "FoundedDate", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 4, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
-                new Column(tableId: 4, name: "NationID", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 4, name: "Name", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 4, name: "Motto", columnId: 4, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 4, name: "LeaderResidentID", columnId: 5, isNullable: true, isIdentity: false, isComputed: false)
+                new Column(tableId: 6, name: "ID", columnId: 1, isNullable: false, isIdentity: true),
+                new Column(tableId: 6, name: "Name", columnId: 2, isNullable: false),
+                new Column(tableId: 6, name: "ProvinceID", columnId: 3, isNullable: false),
+                new Column(tableId: 6, name: "NationalityNationID", columnId: 4, isNullable: false),
+                new Column(tableId: 6, name: "SpouseResidentID", columnId: 5, isNullable: true),
+                new Column(tableId: 6, name: "FavoriteProvinceID", columnId: 6, isNullable: true),
+                new Column(tableId: 3, name: "ID", columnId: 1, isNullable: false, isIdentity: true),
+                new Column(tableId: 3, name: "Name", columnId: 2, isNullable: false),
+                new Column(tableId: 3, name: "FoundedDate", columnId: 3, isNullable: false),
+                new Column(tableId: 4, name: "ID", columnId: 1, isNullable: false, isIdentity: true),
+                new Column(tableId: 4, name: "NationID", columnId: 2, isNullable: false),
+                new Column(tableId: 4, name: "Name", columnId: 3, isNullable: false),
+                new Column(tableId: 4, name: "Motto", columnId: 4, isNullable: false),
+                new Column(tableId: 4, name: "LeaderResidentID", columnId: 5, isNullable: true)
             };
             var primaryKeys = new[]
             {
@@ -57,12 +57,12 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
             };
             var foreignKeys = new[]
             {
-                new ForeignKey(name: "FK_Provinces_NationID_Nations_ID", id: 5, parentTableId: 4, referencedTableId: 3, isDisabled: false),
-                new ForeignKey(name: "FK_Residents_ProvinceID_Provinces_ID", id: 7, parentTableId: 6, referencedTableId: 4, isDisabled: false),
-                new ForeignKey(name: "FK_Residents_NationalityNationID_Nations_ID", id: 8, parentTableId: 6, referencedTableId: 3, isDisabled: false),
-                new ForeignKey(name: "FK_Residents_SpouseResidentID_Residents_ID", id: 9, parentTableId: 6, referencedTableId: 6, isDisabled: false),
-                new ForeignKey(name: "FK_Provinces_LeaderResidentID_Residents_ID", id: 10, parentTableId: 4, referencedTableId: 6, isDisabled: false),
-                new ForeignKey(name: "FK_Residents_FavoriteProvinceID_Provinces_ID", id: 11, parentTableId: 6, referencedTableId: 4, isDisabled: false)
+                new ForeignKey(name: "FK_Provinces_NationID_Nations_ID", id: 5, parentTableId: 4, referencedTableId: 3),
+                new ForeignKey(name: "FK_Residents_ProvinceID_Provinces_ID", id: 7, parentTableId: 6, referencedTableId: 4),
+                new ForeignKey(name: "FK_Residents_NationalityNationID_Nations_ID", id: 8, parentTableId: 6, referencedTableId: 3),
+                new ForeignKey(name: "FK_Residents_SpouseResidentID_Residents_ID", id: 9, parentTableId: 6, referencedTableId: 6),
+                new ForeignKey(name: "FK_Provinces_LeaderResidentID_Residents_ID", id: 10, parentTableId: 4, referencedTableId: 6),
+                new ForeignKey(name: "FK_Residents_FavoriteProvinceID_Provinces_ID", id: 11, parentTableId: 6, referencedTableId: 4)
             };
             var foreignKeyColumns = new[]
             {

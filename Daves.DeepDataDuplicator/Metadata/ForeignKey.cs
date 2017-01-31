@@ -6,24 +6,22 @@ namespace Daves.DeepDataDuplicator.Metadata
 {
     public class ForeignKey
     {
-        public ForeignKey(object name, object id, object parentTableId, object referencedTableId, object isDisabled)
-            : this((string)name, (int)id, (int)parentTableId, (int)referencedTableId, (bool)isDisabled)
+        public ForeignKey(object name, object id, object parentTableId, object referencedTableId)
+            : this((string)name, (int)id, (int)parentTableId, (int)referencedTableId)
         { }
 
-        public ForeignKey(string name, int id, int parentTableId, int referencedTableId, bool isDisabled)
+        public ForeignKey(string name, int id, int parentTableId, int referencedTableId)
         {
             Name = name;
             Id = id;
             ParentTableId = parentTableId;
             ReferencedTableId = referencedTableId;
-            IsDisabled = isDisabled;
         }
 
         public string Name { get; }
         public int Id { get; }
         public int ParentTableId { get; }
         public int ReferencedTableId { get; }
-        public bool IsDisabled { get; }
         public Table ParentTable { get; protected set; }
         public Table ReferencedTable { get; protected set; }
         public IReadOnlyList<ForeignKeyColumn> ForeignKeyColumns { get; protected set; }
@@ -37,19 +35,19 @@ namespace Daves.DeepDataDuplicator.Metadata
                 .ToReadOnlyList();
         }
 
-        public virtual IEnumerable<Column> ParentColumns
+        public IEnumerable<Column> ParentColumns
             => ForeignKeyColumns
             .Select(fkc => fkc.ParentColumn);
 
-        public virtual IEnumerable<Column> ReferencedColumns
+        public IEnumerable<Column> ReferencedColumns
             => ForeignKeyColumns
             .Select(fkc => fkc.ReferencedColumn);
 
         public virtual bool IsEffectivelyRequired
             => ParentColumns.All(c => !c.IsNullable
-                || c.Table.CheckConstraints.Any(cc => !cc.IsDisabled && cc.CoalescesOver(c)));
+                || c.Table.CheckConstraints.Any(cc => cc.CoalescesOver(c)));
 
-        public virtual bool IsReferencingPrimaryKey
+        public bool IsReferencingPrimaryKey
             => ReferencedTable.PrimaryKey?.Columns
             .All(c => ReferencedColumns.Contains(c)) ?? false;
 

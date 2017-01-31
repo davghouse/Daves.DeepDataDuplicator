@@ -6,23 +6,19 @@ namespace Daves.DeepDataDuplicator.Metadata
 {
     public class CheckConstraint
     {
-        public CheckConstraint(object name, object tableId, object isDisabled, object isTableLevel, object definition)
-            : this((string)name, (int)tableId, (bool)isDisabled, (bool)isTableLevel, (string)definition)
+        public CheckConstraint(object name, object tableId, object definition)
+            : this((string)name, (int)tableId, (string)definition)
         { }
 
-        public CheckConstraint(string name, int tableId, bool isDisabled, bool isTableLevel, string definition)
+        public CheckConstraint(string name, int tableId, string definition)
         {
             Name = name;
             TableId = tableId;
-            IsDisabled = isDisabled;
-            IsTableLevel = IsTableLevel;
             Definition = definition;
         }
 
         public string Name { get; }
         public int TableId { get; }
-        public bool IsDisabled { get; }
-        public bool IsTableLevel { get; }
         public string Definition { get; }
         public Table Table { get; protected set; }
 

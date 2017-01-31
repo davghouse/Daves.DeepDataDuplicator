@@ -10,7 +10,7 @@ namespace Daves.DeepDataDuplicator.Metadata
             : this((int)tableId, (string)name, (int)columnId, (bool)isNullable, (bool)isIdentity, (bool)isComputed)
         { }
 
-        public Column(int tableId, string name, int columnId, bool isNullable, bool isIdentity, bool isComputed)
+        public Column(int tableId, string name, int columnId, bool isNullable, bool isIdentity = false, bool isComputed = false)
         {
             TableId = tableId;
             Name = name;
@@ -31,10 +31,10 @@ namespace Daves.DeepDataDuplicator.Metadata
         public virtual void Initialize(IReadOnlyList<Table> tables)
             => Table = tables.Single(t => t.Id == TableId);
 
-        public virtual string LowercaseSpacelessName
+        public string LowercaseSpacelessName
             => Name.ToLowercaseSpacelessName();
 
-        public bool IsCopyable
+        public virtual bool IsCopyable
             => !IsIdentity && !IsComputed;
 
         public override string ToString()

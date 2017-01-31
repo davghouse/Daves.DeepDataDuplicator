@@ -24,12 +24,10 @@ namespace Daves.DeepDataDuplicator
 
             GenerateTableVariables();
             GenerateRootTableCopy();
-
             foreach (var vertex in ReferenceGraph.Skip(1))
             {
                 GenerateDependentTableCopy(vertex);
             }
-
             foreach (var vertex in ReferenceGraph
                 .Where(v => v.NonDependentReferences.Any()))
             {

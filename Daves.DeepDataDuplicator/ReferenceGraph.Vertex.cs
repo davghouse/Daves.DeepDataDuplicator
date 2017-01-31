@@ -10,7 +10,7 @@ namespace Daves.DeepDataDuplicator
     {
         public class Vertex
         {
-            public Vertex(ReferenceGraph referenceGraph, Table table)
+            protected internal Vertex(ReferenceGraph referenceGraph, Table table)
             {
                 ReferenceGraph = referenceGraph;
                 Table = table;
@@ -21,7 +21,7 @@ namespace Daves.DeepDataDuplicator
             public IReadOnlyList<Reference> DependentReferences { get; protected set; }
             public IReadOnlyList<Reference> NonDependentReferences { get; protected set; }
 
-            public virtual void Initialize()
+            protected internal virtual void Initialize()
             {
                 InitializeDependentReferences();
                 InitializeNonDependentReferences();
@@ -64,7 +64,7 @@ namespace Daves.DeepDataDuplicator
                 NonDependentReferences = BuildReferences(optionalForeignKeys);
             }
 
-            private IReadOnlyList<Reference> BuildReferences(IEnumerable<ForeignKey> foreignKeysReferencingIdentityPrimaryKeys)
+            protected virtual IReadOnlyList<Reference> BuildReferences(IEnumerable<ForeignKey> foreignKeysReferencingIdentityPrimaryKeys)
             {
                 // The foreign keys are likely already equivalent to distinct (fromColumn, toTable) pairs, but need to be sure in case of weird or misconfigured databases.
                 var references = foreignKeysReferencingIdentityPrimaryKeys

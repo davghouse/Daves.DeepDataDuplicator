@@ -25,7 +25,7 @@ namespace Daves.DeepDataDuplicator.Metadata
             .Where(t => t.SchemaId == Id)
             .ToReadOnlyList();
 
-        public virtual string SpacelessName
+        public string SpacelessName
             => Name.ToSpacelessName();
 
         public override string ToString()

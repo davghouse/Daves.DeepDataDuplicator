@@ -65,12 +65,12 @@ namespace Daves.DeepDataDuplicator.Metadata
             CheckConstraints.ForEach(c => c.Initialize(Tables));
         }
 
-        public virtual Table FindTable(string tableName, string schemaName = null)
+        public Table FindTable(string tableName, string schemaName = null)
             => Tables
             .Where(t => schemaName == null || t.Schema.Name == schemaName)
             .Single(t => t.Name == tableName);
 
-        public virtual Column FindColumn(string tableName, string columnName, string schemaName = null)
+        public Column FindColumn(string tableName, string columnName, string schemaName = null)
             => FindTable(tableName, schemaName)
             .FindColumn(columnName);
 

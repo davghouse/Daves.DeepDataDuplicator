@@ -64,8 +64,7 @@ WHERE i.is_primary_key = 1
     name name,
     object_id id,
     parent_object_id parentTableId,
-    referenced_object_id referencedTableId,
-    is_disabled isDisabled
+    referenced_object_id referencedTableId
 FROM sys.foreign_keys
 WHERE parent_object_id IN (SELECT object_id FROM sys.tables)
     AND referenced_object_id IN (SELECT object_id FROM sys.tables)";
@@ -85,8 +84,6 @@ WHERE parent_object_id IN (SELECT object_id FROM sys.tables)
 @"SELECT
     name name,
     parent_object_id tableId,
-    is_disabled isDisabled,
-    CAST(CASE WHEN parent_column_id = 0 THEN 1 ELSE 0 END AS BIT) AS isTableLevel,
     definition definition
 FROM sys.check_constraints
 WHERE parent_object_id IN (SELECT object_id FROM sys.tables)";
@@ -118,7 +115,7 @@ WHERE parent_object_id IN (SELECT object_id FROM sys.tables)";
 
         public virtual IReadOnlyList<ForeignKey> QueryForeignKeys()
             => Query(ForeignKeyQuery,
-                r => new ForeignKey(r["name"], r["id"], r["parentTableId"], r["referencedTableId"], r["isDisabled"]))
+                r => new ForeignKey(r["name"], r["id"], r["parentTableId"], r["referencedTableId"]))
             .ToReadOnlyList();
 
         public virtual IReadOnlyList<ForeignKeyColumn> QueryForeignKeyColumns()
@@ -128,7 +125,7 @@ WHERE parent_object_id IN (SELECT object_id FROM sys.tables)";
 
         public virtual IReadOnlyList<CheckConstraint> QueryCheckConstraints()
             => Query(CheckConstraintQuery,
-                r => new CheckConstraint(r["name"], r["tableId"], r["isDisabled"], r["isTableLevel"], r["definition"]))
+                r => new CheckConstraint(r["name"], r["tableId"], r["definition"]))
             .ToReadOnlyList();
 
         protected virtual IEnumerable<T> Query<T>(string query, Func<IDataRecord, T> parse)
