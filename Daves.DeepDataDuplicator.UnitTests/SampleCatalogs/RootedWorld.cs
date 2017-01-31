@@ -25,7 +25,8 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
             var columns = new[]
             {
                 new Column(tableId: 6, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
-                new Column(tableId: 6, name: "ProvinceID", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "ProvinceID", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
                 new Column(tableId: 3, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
                 new Column(tableId: 3, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
                 new Column(tableId: 3, name: "FoundedDate", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
@@ -53,7 +54,7 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
             };
             var foreignKeyColumns = new[]
             {
-                new ForeignKeyColumn(foreignKeyId: 7, parentTableId: 6, parentColumnId: 2, referencedTableId: 4, referencedColumnId: 1),
+                new ForeignKeyColumn(foreignKeyId: 7, parentTableId: 6, parentColumnId: 3, referencedTableId: 4, referencedColumnId: 1),
                 new ForeignKeyColumn(foreignKeyId: 5, parentTableId: 4, parentColumnId: 2, referencedTableId: 3, referencedColumnId: 1)
             };
             var checkConstraints = new CheckConstraint[0];

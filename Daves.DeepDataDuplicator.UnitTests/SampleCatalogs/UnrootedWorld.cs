@@ -29,10 +29,11 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
             var columns = new[]
             {
                 new Column(tableId: 6, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
-                new Column(tableId: 6, name: "ProvinceID", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "NationalityNationID", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "SpouseResidentID", columnId: 4, isNullable: true, isIdentity: false, isComputed: false),
-                new Column(tableId: 6, name: "FavoriteProvinceID", columnId: 5, isNullable: true, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "ProvinceID", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "NationalityNationID", columnId: 4, isNullable: false, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "SpouseResidentID", columnId: 5, isNullable: true, isIdentity: false, isComputed: false),
+                new Column(tableId: 6, name: "FavoriteProvinceID", columnId: 6, isNullable: true, isIdentity: false, isComputed: false),
                 new Column(tableId: 3, name: "ID", columnId: 1, isNullable: false, isIdentity: true, isComputed: false),
                 new Column(tableId: 3, name: "Name", columnId: 2, isNullable: false, isIdentity: false, isComputed: false),
                 new Column(tableId: 3, name: "FoundedDate", columnId: 3, isNullable: false, isIdentity: false, isComputed: false),
@@ -65,12 +66,12 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
             };
             var foreignKeyColumns = new[]
             {
-                new ForeignKeyColumn(foreignKeyId: 7, parentTableId: 6, parentColumnId: 2, referencedTableId: 4, referencedColumnId: 1),
+                new ForeignKeyColumn(foreignKeyId: 7, parentTableId: 6, parentColumnId: 3, referencedTableId: 4, referencedColumnId: 1),
                 new ForeignKeyColumn(foreignKeyId: 5, parentTableId: 4, parentColumnId: 2, referencedTableId: 3, referencedColumnId: 1),
-                new ForeignKeyColumn(foreignKeyId: 8, parentTableId: 6, parentColumnId: 3, referencedTableId: 3, referencedColumnId: 1),
-                new ForeignKeyColumn(foreignKeyId: 9, parentTableId: 6, parentColumnId: 4, referencedTableId: 6, referencedColumnId: 1),
+                new ForeignKeyColumn(foreignKeyId: 8, parentTableId: 6, parentColumnId: 4, referencedTableId: 3, referencedColumnId: 1),
+                new ForeignKeyColumn(foreignKeyId: 9, parentTableId: 6, parentColumnId: 5, referencedTableId: 6, referencedColumnId: 1),
                 new ForeignKeyColumn(foreignKeyId: 10, parentTableId: 4, parentColumnId: 5, referencedTableId: 6, referencedColumnId: 1),
-                new ForeignKeyColumn(foreignKeyId: 11, parentTableId: 6, parentColumnId: 5, referencedTableId: 4, referencedColumnId: 1)
+                new ForeignKeyColumn(foreignKeyId: 11, parentTableId: 6, parentColumnId: 6, referencedTableId: 4, referencedColumnId: 1)
             };
             var checkConstraints = new CheckConstraint[0];
 

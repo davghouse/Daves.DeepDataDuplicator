@@ -85,9 +85,11 @@ BEGIN
     ON 1 = 0
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
-        [ProvinceID])
+        [ProvinceID],
+        [Name])
     VALUES (
-        j0InsertedID);
+        j0InsertedID,
+        Source.[Name]);
 
     COMMIT TRAN;
 END;", procedure);
@@ -192,11 +194,13 @@ BEGIN
     INSERT (
         [ProvinceID],
         [NationalityNationID],
+        [Name],
         [SpouseResidentID],
         [FavoriteProvinceID])
     VALUES (
         j0InsertedID,
         j1InsertedID,
+        Source.[Name],
         Source.[SpouseResidentID],
         Source.[FavoriteProvinceID])
     OUTPUT Source.[ID], Inserted.[ID]
@@ -278,9 +282,11 @@ BEGIN
     ON 1 = 0
     WHEN NOT MATCHED BY TARGET THEN
     INSERT (
-        [ProvinceID])
+        [ProvinceID],
+        [Name])
     VALUES (
-        j0InsertedID);
+        j0InsertedID,
+        Source.[Name]);
 
     COMMIT TRAN;
 END;", procedure);
