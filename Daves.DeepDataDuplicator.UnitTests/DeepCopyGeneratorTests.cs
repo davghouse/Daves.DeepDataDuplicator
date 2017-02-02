@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Daves.DeepDataDuplicator.UnitTests
 {
     [TestClass]
-    public sealed class DeepCopyGeneratorTests
+    public class DeepCopyGeneratorTests
     {
         [TestMethod]
         public void GenerateDefaultProcedure_ForUnrootedWorld()

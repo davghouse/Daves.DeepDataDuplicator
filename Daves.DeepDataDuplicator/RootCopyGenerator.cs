@@ -13,14 +13,14 @@ namespace Daves.DeepDataDuplicator
             Catalog catalog,
             Table rootTable,
             string primaryKeyParameterName = null,
-            IReadOnlyDictionary<Column, Parameter> updateParameters = null,
+            IReadOnlyDictionary<Column, string> updateParameterNames = null,
             ReferenceGraph referenceGraph = null)
         {
             Catalog = catalog;
             RootTable = rootTable;
             ReferenceGraph = referenceGraph ?? new ReferenceGraph(catalog, rootTable);
             PrimaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? RootTable.DefaultPrimaryKeyParameterName);
-            UpdateParameters = updateParameters ?? new Dictionary<Column, Parameter>();
+            UpdateParameterNames = (updateParameterNames ?? new Dictionary<Column, string>()).ToDictionary(kvp => kvp.Key, kvp => Parameter.ValidateName(kvp.Value));
 
             GenerateTableVariables();
             GenerateRootTableCopy();
@@ -39,7 +39,7 @@ namespace Daves.DeepDataDuplicator
         protected Table RootTable { get; }
         protected ReferenceGraph ReferenceGraph { get; }
         protected string PrimaryKeyParameterName { get; }
-        protected IReadOnlyDictionary<Column, Parameter> UpdateParameters { get; }
+        protected IReadOnlyDictionary<Column, string> UpdateParameterNames { get; }
         protected StringBuilder ProcedureBody { get; } = new StringBuilder();
         protected IDictionary<Table, string> TableVariableNames { get; } = new Dictionary<Table, string>();
 
@@ -73,7 +73,7 @@ namespace Daves.DeepDataDuplicator
             var insertColumnNames = insertColumns
                 .Select(c => $"[{c.Name}]");
             var insertColumnValues = insertColumns
-                .Select(c => UpdateParameters.ContainsKey(c) ? UpdateParameters[c].Name : $"Source.[{c.Name}]");
+                .Select(c => UpdateParameterNames.ContainsKey(c) ? UpdateParameterNames[c] : $"Source.[{c.Name}]");
             string insertString = !insertColumns.Any()
 ? @"
     INSERT DEFAULT VALUES"
@@ -127,7 +127,7 @@ namespace Daves.DeepDataDuplicator
             var nonDependentInsertColumnNames = nonDependentInsertColumns
                 .Select(c => $"[{c.Name}]");
             var nonDependentInsertColumnValues = nonDependentInsertColumns
-                .Select(c => UpdateParameters.ContainsKey(c) ? UpdateParameters[c].Name : $"Source.[{c.Name}]");
+                .Select(c => UpdateParameterNames.ContainsKey(c) ? UpdateParameterNames[c] : $"Source.[{c.Name}]");
 
             ProcedureBody.AppendLine($@"
     MERGE INTO [{table.Schema.Name}].[{table.Name}] AS Target
@@ -200,21 +200,21 @@ namespace Daves.DeepDataDuplicator
         {
             procedureName = procedureName ?? $"Copy{rootTable.SingularSpacelessName}";
             primaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? rootTable.DefaultPrimaryKeyParameterName);
-            string parameterDefinitions = !updateParameters?.Any() ?? true
+            string parameterDeclarations = !updateParameters?.Any() ?? true
 ? $@"
     {primaryKeyParameterName} INT"
 : $@"
     {primaryKeyParameterName} INT,
-    {string.Join(Separators.Cnlw4, updateParameters.Select(p => $"{p.Value.Name} {p.Value.DataTypeName}"))}";
+    {string.Join(Separators.Cnlw4, updateParameters.Select(p => $"{p.Value.Name} {p.Value.DataTypeDescription}"))}";
 
             return
-$@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDefinitions}
+$@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDeclarations}
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
     BEGIN TRAN;
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph)}
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name), referenceGraph)}
     COMMIT TRAN;
 END;";
         }
@@ -235,8 +235,8 @@ END;";
             Catalog catalog,
             Table rootTable,
             string primaryKeyParameterName = null,
-            IReadOnlyDictionary<Column, Parameter> updateParameters = null,
+            IReadOnlyDictionary<Column, string> updateParameterNames = null,
             ReferenceGraph referenceGraph = null)
-            => new RootCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameters, referenceGraph).ProcedureBody.ToString();
+            => new RootCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameterNames, referenceGraph).ProcedureBody.ToString();
     }
 }

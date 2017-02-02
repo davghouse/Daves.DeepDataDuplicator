@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26127.0
+VisualStudioVersion = 15.0.26127.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Daves.DeepDataDuplicator", "Daves.DeepDataDuplicator\Daves.DeepDataDuplicator.csproj", "{F646D199-81F5-4998-944E-7CF7EB5D5B89}"
 EndProject

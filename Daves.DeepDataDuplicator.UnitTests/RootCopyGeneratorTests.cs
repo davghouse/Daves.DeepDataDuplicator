@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Daves.DeepDataDuplicator.UnitTests
 {
     [TestClass]
-    public sealed class RootCopyGeneratorTests
+    public class RootCopyGeneratorTests
     {
         [TestMethod]
         public void GenerateDefaultProcedure_ForRootedWorld()

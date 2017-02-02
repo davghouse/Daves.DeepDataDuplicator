@@ -2,16 +2,14 @@
 {
     public class Parameter
     {
-        // TODO: Improve metadata in order to make dataTypeName an optional parameter. dataType'Name'
-        // will still be needed to allow specifying parameter defaults (e.g., VARCHAR(50) = null).
-        public Parameter(string name, string dataTypeName)
+        public Parameter(string name, string dataTypeDescription)
         {
             Name = ValidateName(name);
-            DataTypeName = dataTypeName;
+            DataTypeDescription = dataTypeDescription;
         }
 
         public string Name { get; }
-        public string DataTypeName { get; }
+        public string DataTypeDescription { get; }
 
         // '@' is considered part of the name: https://technet.microsoft.com/en-us/library/ms177436(v=sql.105).aspx.
         public static string ValidateName(string parameterName)
