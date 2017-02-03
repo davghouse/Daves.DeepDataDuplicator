@@ -12,8 +12,8 @@ namespace Daves.DeepDataDuplicator.UnitTests
         public void GenerateDefaultProcedure_ForUnrootedWorld()
         {
             string procedure = DeepCopyGenerator.GenerateProcedure(
-                UnrootedWorld.Catalog,
-                UnrootedWorld.Catalog.FindTable("Nations"));
+                catalog: UnrootedWorld.Catalog,
+                rootTable: UnrootedWorld.Catalog.FindTable("Nations"));
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyNation]
@@ -141,8 +141,8 @@ END;", procedure);
         public void GenerateDefaultProcedure_ForRootedWorld()
         {
             string procedure = DeepCopyGenerator.GenerateProcedure(
-                RootedWorld.Catalog,
-                RootedWorld.Catalog.FindTable("Nations"));
+                catalog: RootedWorld.Catalog,
+                rootTable: RootedWorld.Catalog.FindTable("Nations"));
 
             // Deep copy can be used as a root copy, and in the rooted world case both generate the same procedure.
             Assert.AreEqual(
@@ -234,16 +234,18 @@ END;", procedure);
             };
 
             string procedure = DeepCopyGenerator.GenerateProcedure(
-                UnrootedWorld.Catalog,
-                UnrootedWorld.Catalog.FindTable("Nations"),
-                "DeepCopyNation",
-                "@fromNationID",
-                updateParameters);
+                catalog: UnrootedWorld.Catalog,
+                rootTable: UnrootedWorld.Catalog.FindTable("Nations"),
+                procedureName: "DeepCopyNation",
+                primaryKeyParameterName: "@existingNationID",
+                primaryKeyOutputParameterName: "@insertedNationID",
+                updateParameters: updateParameters);
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[DeepCopyNation]
-    @fromNationID INT,
-    @toMotto NVARCHAR(50)
+    @existingNationID INT,
+    @toMotto NVARCHAR(50),
+    @insertedNationID INT = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -269,7 +271,7 @@ BEGIN
     USING (
         SELECT *
         FROM [dbo].[Nations]
-        WHERE [ID] = @fromNationID
+        WHERE [ID] = @existingNationID
     ) AS Source
     ON 1 = 0
     WHEN NOT MATCHED BY TARGET THEN
@@ -281,6 +283,7 @@ BEGIN
         Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
+    SET @insertedNationID = SCOPE_IDENTITY();
 
     MERGE INTO [dbo].[Provinces] AS Target
     USING (
@@ -368,12 +371,14 @@ END;", procedure);
         {
             // Nations is the top-level root, but we can also treat provinces as a root, leaving the nations table unaffected.
             string procedure = DeepCopyGenerator.GenerateProcedure(
-                UnrootedWorld.Catalog,
-                UnrootedWorld.Catalog.FindTable("Provinces"));
+                catalog: UnrootedWorld.Catalog,
+                rootTable: UnrootedWorld.Catalog.FindTable("Provinces"),
+                primaryKeyOutputParameterName: "insertedID");
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyProvince]
-    @id INT
+    @id INT,
+    @insertedID INT = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -410,6 +415,7 @@ BEGIN
         Source.[LeaderResidentID])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
+    SET @insertedID = SCOPE_IDENTITY();
 
     MERGE INTO [dbo].[Residents] AS Target
     USING (

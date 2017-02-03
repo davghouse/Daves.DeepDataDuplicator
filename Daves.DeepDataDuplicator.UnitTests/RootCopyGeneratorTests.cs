@@ -12,8 +12,8 @@ namespace Daves.DeepDataDuplicator.UnitTests
         public void GenerateDefaultProcedure_ForRootedWorld()
         {
             string procedure = RootCopyGenerator.GenerateProcedure(
-                RootedWorld.Catalog,
-                RootedWorld.Catalog.FindTable("Nations"));
+                catalog: RootedWorld.Catalog,
+                rootTable: RootedWorld.Catalog.FindTable("Nations"));
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyNation]
@@ -98,23 +98,17 @@ END;", procedure);
         [TestMethod]
         public void GenerateCustomizedProcedure_ForUnrootedWorld()
         {
-            var updateParameters = new Dictionary<Column, Parameter>
-            {
-                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)") },
-            };
-
             // Note it doesn't really make sense to use root copy on the unrooted world. Compare to the corresponding deep copy test.
             string procedure = RootCopyGenerator.GenerateProcedure(
-                UnrootedWorld.Catalog,
-                UnrootedWorld.Catalog.FindTable("Nations"),
-                "RootCopyNation",
-                "@fromNationID",
-                updateParameters);
+                catalog: UnrootedWorld.Catalog,
+                rootTable: UnrootedWorld.Catalog.FindTable("Nations"),
+                procedureName: "RootCopyNation",
+                primaryKeyOutputParameterName: "insertedID");
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[RootCopyNation]
-    @fromNationID INT,
-    @toMotto NVARCHAR(50)
+    @id INT,
+    @insertedID INT = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -140,7 +134,7 @@ BEGIN
     USING (
         SELECT *
         FROM [dbo].[Nations]
-        WHERE [ID] = @fromNationID
+        WHERE [ID] = @id
     ) AS Source
     ON 1 = 0
     WHEN NOT MATCHED BY TARGET THEN
@@ -152,6 +146,7 @@ BEGIN
         Source.[FoundedDate])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @NationIDPairs;
+    SET @insertedID = SCOPE_IDENTITY();
 
     MERGE INTO [dbo].[Provinces] AS Target
     USING (
@@ -172,7 +167,7 @@ BEGIN
     VALUES (
         j0InsertedID,
         Source.[Name],
-        @toMotto,
+        Source.[Motto],
         Source.[LeaderResidentID])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
@@ -234,8 +229,8 @@ END;", procedure);
         {
             // Nations is the top-level root, but we can also treat provinces as a root, leaving the nations table unaffected.
             string procedure = RootCopyGenerator.GenerateProcedure(
-                RootedWorld.Catalog,
-                RootedWorld.Catalog.FindTable("Provinces"));
+                catalog: RootedWorld.Catalog,
+                rootTable: RootedWorld.Catalog.FindTable("Provinces"));
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyProvince]
@@ -290,6 +285,93 @@ BEGIN
 
     COMMIT TRAN;
 END;", procedure);
+        }
+
+        [TestMethod]
+        public void GenerateCustomizedProcedureBody_ForRootedWorld()
+        {
+            var updateParameterNames = new Dictionary<Column, string>
+            {
+                { RootedWorld.Catalog.FindColumn("Provinces", "Motto"), "toMotto" },
+                { RootedWorld.Catalog.FindColumn("Provinces", "Name"), "@toName" },
+            };
+
+            string procedure = RootCopyGenerator.GenerateProcedureBody(
+                catalog: RootedWorld.Catalog,
+                rootTable: RootedWorld.Catalog.FindTable("Nations"),
+                primaryKeyParameterName: "existingNationID",
+                primaryKeyOutputParameterName: "insertedNationID",
+                updateParameterNames: updateParameterNames);
+
+            Assert.AreEqual(@"
+    DECLARE @NationIDPairs TABLE (
+        ExistingID INT NOT NULL UNIQUE,
+        InsertedID INT NOT NULL UNIQUE
+    );
+
+    DECLARE @ProvinceIDPairs TABLE (
+        ExistingID INT NOT NULL UNIQUE,
+        InsertedID INT NOT NULL UNIQUE
+    );
+
+    MERGE INTO [dbo].[Nations] AS Target
+    USING (
+        SELECT *
+        FROM [dbo].[Nations]
+        WHERE [ID] = @existingNationID
+    ) AS Source
+    ON 1 = 0
+    WHEN NOT MATCHED BY TARGET THEN
+    INSERT (
+        [Name],
+        [FoundedDate])
+    VALUES (
+        Source.[Name],
+        Source.[FoundedDate])
+    OUTPUT Source.[ID], Inserted.[ID]
+    INTO @NationIDPairs;
+    SET @insertedNationID = SCOPE_IDENTITY();
+
+    MERGE INTO [dbo].[Provinces] AS Target
+    USING (
+        SELECT
+            copy.*,
+            j0.InsertedID j0InsertedID
+        FROM [dbo].[Provinces] copy
+        JOIN @NationIDPairs j0
+            ON copy.[NationID] = j0.ExistingID
+    ) AS Source
+    ON 1 = 0
+    WHEN NOT MATCHED BY TARGET THEN
+    INSERT (
+        [NationID],
+        [Name],
+        [Motto])
+    VALUES (
+        j0InsertedID,
+        @toName,
+        @toMotto)
+    OUTPUT Source.[ID], Inserted.[ID]
+    INTO @ProvinceIDPairs;
+
+    MERGE INTO [dbo].[Residents] AS Target
+    USING (
+        SELECT
+            copy.*,
+            j0.InsertedID j0InsertedID
+        FROM [dbo].[Residents] copy
+        JOIN @ProvinceIDPairs j0
+            ON copy.[ProvinceID] = j0.ExistingID
+    ) AS Source
+    ON 1 = 0
+    WHEN NOT MATCHED BY TARGET THEN
+    INSERT (
+        [ProvinceID],
+        [Name])
+    VALUES (
+        j0InsertedID,
+        Source.[Name]);
+", procedure);
         }
     }
 }

@@ -11,10 +11,11 @@ namespace Daves.DeepDataDuplicator
         protected DeepCopyGenerator(
             Catalog catalog,
             Table rootTable,
-            string primaryKeyParameterName = null,
+            string primaryKeyParameterName,
             IReadOnlyDictionary<Column, string> updateParameterNames = null,
+            string primaryKeyOutputParameterName = null,
             ReferenceGraph referenceGraph = null)
-            : base(catalog, rootTable, primaryKeyParameterName, updateParameterNames, referenceGraph: referenceGraph)
+            : base(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, referenceGraph)
         { }
 
         protected override void GenerateDependentTableCopy(ReferenceGraph.Vertex vertex)
@@ -25,16 +26,15 @@ namespace Daves.DeepDataDuplicator
             bool useLeftJoin = dependentReferences.Count > 1;
             var selectColumnNames = dependentReferences
                 .Select((r, i) => $"j{i}.InsertedID j{i}InsertedID");
-            // If necessary (it often is), make sure something in the row is dependent on something copied.
+            // If necessary (it often is), make sure something in the row is dependent on something copied. Faster to
+            // or together where-ins than it is to coalesce on all left joined columns and perform a not null check.
             string fromClause = useLeftJoin
-? $@"
-        FROM (
+? $@"FROM (
             SELECT *
             FROM [{table.Schema}].[{table.Name}]
             WHERE {string.Join($"{Separators.Nlw16} OR ", dependentReferences.Select(r => $"[{r.ParentColumn.Name}] IN (SELECT ExistingID FROM {TableVariableNames[r.ReferencedTable]})"))}
         ) AS copy"
-: $@"
-        FROM [{table.Schema.Name}].[{table.Name}] copy";
+: $@"FROM [{table.Schema.Name}].[{table.Name}] copy";
             var joinClauses = dependentReferences 
                 .Select((r, i) => new { r.ParentColumn, r.ReferencedTable, JoinString = $"{(useLeftJoin ? "LEFT " : "")}JOIN" })
                 .Select((r, i) => $"{r.JoinString} {TableVariableNames[r.ReferencedTable]} j{i}{Separators.Nlw12}ON copy.[{r.ParentColumn.Name}] = j{i}.ExistingID");
@@ -55,7 +55,8 @@ namespace Daves.DeepDataDuplicator
     USING (
         SELECT
             copy.*,
-            {string.Join(Separators.Cnlw12, selectColumnNames)}{fromClause}
+            {string.Join(Separators.Cnlw12, selectColumnNames)}
+        {fromClause}
         {string.Join(Separators.Nlw8, joinClauses)}
     ) AS Source
     ON 1 = 0
@@ -63,15 +64,29 @@ namespace Daves.DeepDataDuplicator
     INSERT (
         {string.Join(Separators.Cnlw8, dependentInsertColumnNames.Concat(nonDependentInsertColumnNames))})
     VALUES (
-        {string.Join(Separators.Cnlw8, dependentInsertColumnValues.Concat(nonDependentInsertColumnValues))}){GenerateOutputString(table)}");
+        {string.Join(Separators.Cnlw8, dependentInsertColumnValues.Concat(nonDependentInsertColumnValues))}){GenerateOutputClause(table)}");
         }
 
         public static new string GenerateProcedure(
             IDbConnection connection,
             string rootTableName,
-            IDbTransaction transaction = null,
             string procedureName = null,
             string primaryKeyParameterName = null,
+            string primaryKeyOutputParameterName = null,
+            string schemaName = null)
+        {
+            var catalog = new Catalog(connection);
+
+            return GenerateProcedure(catalog, catalog.FindTable(rootTableName, schemaName), procedureName, primaryKeyParameterName);
+        }
+
+        public static new string GenerateProcedure(
+            IDbConnection connection,
+            IDbTransaction transaction,
+            string rootTableName,
+            string procedureName = null,
+            string primaryKeyParameterName = null,
+            string primaryKeyOutputParameterName = null,
             string schemaName = null)
         {
             var catalog = new Catalog(connection, transaction);
@@ -85,25 +100,27 @@ namespace Daves.DeepDataDuplicator
             string procedureName = null,
             string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
+            string primaryKeyOutputParameterName = null,
             ReferenceGraph referenceGraph = null)
         {
             procedureName = procedureName ?? $"Copy{rootTable.SingularSpacelessName}";
-            primaryKeyParameterName = Parameter.ValidateName(primaryKeyParameterName ?? rootTable.DefaultPrimaryKeyParameterName);
-            string parameterDeclarations = !updateParameters?.Any() ?? true
-? $@"
-    {primaryKeyParameterName} INT"
-: $@"
-    {primaryKeyParameterName} INT,
-    {string.Join(Separators.Cnlw4, updateParameters.Select(p => $"{p.Value.Name} {p.Value.DataTypeDescription}"))}";
+            primaryKeyParameterName = primaryKeyParameterName ?? rootTable.DefaultPrimaryKeyParameterName;
+            var parameters = (updateParameters ?? new Dictionary<Column, Parameter>())
+                .Select(kvp => kvp.Value)
+                .Prepend(new Parameter(primaryKeyParameterName, "INT"));
+            parameters = primaryKeyOutputParameterName == null ? parameters
+                : parameters.Append(new Parameter(primaryKeyOutputParameterName, "INT = NULL OUTPUT"));
+            var updateParameterNames = updateParameters?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name);
 
             return
-$@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]{parameterDeclarations}
+$@"CREATE PROCEDURE [{rootTable.Schema.Name}].[{procedureName}]
+    {string.Join(Separators.Cnlw4, parameters.Select(p => $"{p.Name} {p.DataTypeDescription}"))}
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
     BEGIN TRAN;
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameters?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name), referenceGraph)}
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, referenceGraph)}
     COMMIT TRAN;
 END;";
         }
@@ -111,21 +128,35 @@ END;";
         public static new string GenerateProcedureBody(
             IDbConnection connection,
             string rootTableName,
-            IDbTransaction transaction = null,
-            string primaryKeyParameterName = null,
+            string primaryKeyParameterName,
+            string primaryKeyOutputParameterName = null,
+            string schemaName = null)
+        {
+            var catalog = new Catalog(connection);
+
+            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName, null, primaryKeyOutputParameterName);
+        }
+
+        public static new string GenerateProcedureBody(
+            IDbConnection connection,
+            IDbTransaction transaction,
+            string rootTableName,
+            string primaryKeyParameterName,
+            string primaryKeyOutputParameterName = null,
             string schemaName = null)
         {
             var catalog = new Catalog(connection, transaction);
 
-            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName);
+            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static new string GenerateProcedureBody(
             Catalog catalog,
             Table rootTable,
-            string primaryKeyParameterName = null,
+            string primaryKeyParameterName,
             IReadOnlyDictionary<Column, string> updateParameterNames = null,
+            string primaryKeyOutputParameterName = null,
             ReferenceGraph referenceGraph = null)
-            => new DeepCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameterNames, referenceGraph).ProcedureBody.ToString();
+            => new DeepCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, referenceGraph).ProcedureBody.ToString();
     }
 }

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
+    <!-- Targetting 4.5.1 only to avoid spamming the References list of .NET Framework projects. -->
+    <TargetFrameworks>netstandard1.2;net451</TargetFrameworks>
     <Version>0.3.0</Version>
     <Copyright>© 2017 Dave</Copyright>
     <Description>Uses schema metadata to generate deep copy procedures for SQL Server.</Description>
