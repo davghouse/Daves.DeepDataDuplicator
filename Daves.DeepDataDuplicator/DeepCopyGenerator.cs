@@ -14,8 +14,10 @@ namespace Daves.DeepDataDuplicator
             string primaryKeyParameterName,
             IReadOnlyDictionary<Column, string> updateParameterNames = null,
             string primaryKeyOutputParameterName = null,
+            IReadOnlyList<Column> excludedColumns = null,
+            IReadOnlyList<Table> excludedTables = null,
             ReferenceGraph referenceGraph = null)
-            : base(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, referenceGraph)
+            : base(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, excludedColumns, excludedTables, referenceGraph)
         { }
 
         protected override void GenerateDependentTableCopy(ReferenceGraph.Vertex vertex)
@@ -44,6 +46,7 @@ namespace Daves.DeepDataDuplicator
                 .Select((r, i) => useLeftJoin ? $"COALESCE(j{i}InsertedID, [{r.ParentColumn.Name}])" : $"j{i}InsertedID");
             var nonDependentInsertColumns = table.Columns
                 .Where(c => c.IsCopyable)
+                .Where(c => !ExcludedColumns.Contains(c))
                 .Where(c => !dependentReferences.Select(r => r.ParentColumn).Contains(c));
             var nonDependentInsertColumnNames = nonDependentInsertColumns
                 .Select(c => $"[{c.Name}]");
@@ -73,11 +76,12 @@ namespace Daves.DeepDataDuplicator
             string procedureName = null,
             string primaryKeyParameterName = null,
             string primaryKeyOutputParameterName = null,
-            string schemaName = null)
+            string rootTableSchemaName = null)
         {
             var catalog = new Catalog(connection);
+            var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedure(catalog, catalog.FindTable(rootTableName, schemaName), procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName);
         }
 
         public static new string GenerateProcedure(
@@ -87,11 +91,12 @@ namespace Daves.DeepDataDuplicator
             string procedureName = null,
             string primaryKeyParameterName = null,
             string primaryKeyOutputParameterName = null,
-            string schemaName = null)
+            string rootTableSchemaName = null)
         {
             var catalog = new Catalog(connection, transaction);
+            var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedure(catalog, catalog.FindTable(rootTableName, schemaName), procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName);
         }
 
         public static new string GenerateProcedure(
@@ -101,6 +106,8 @@ namespace Daves.DeepDataDuplicator
             string primaryKeyParameterName = null,
             IReadOnlyDictionary<Column, Parameter> updateParameters = null,
             string primaryKeyOutputParameterName = null,
+            IReadOnlyList<Column> excludedColumns = null,
+            IReadOnlyList<Table> excludedTables = null,
             ReferenceGraph referenceGraph = null)
         {
             procedureName = procedureName ?? $"Copy{rootTable.SingularSpacelessName}";
@@ -120,7 +127,7 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
     BEGIN TRAN;
-{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, referenceGraph)}
+{GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, excludedColumns, excludedTables, referenceGraph)}
     COMMIT TRAN;
 END;";
         }
@@ -130,11 +137,12 @@ END;";
             string rootTableName,
             string primaryKeyParameterName,
             string primaryKeyOutputParameterName = null,
-            string schemaName = null)
+            string rootTableSchemaName = null)
         {
             var catalog = new Catalog(connection);
+            var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName, null, primaryKeyOutputParameterName);
+            return GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static new string GenerateProcedureBody(
@@ -143,11 +151,12 @@ END;";
             string rootTableName,
             string primaryKeyParameterName,
             string primaryKeyOutputParameterName = null,
-            string schemaName = null)
+            string rootTableSchemaName = null)
         {
             var catalog = new Catalog(connection, transaction);
+            var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedureBody(catalog, catalog.FindTable(rootTableName, schemaName), primaryKeyParameterName, null, primaryKeyOutputParameterName);
+            return GenerateProcedureBody(catalog, rootTable, primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static new string GenerateProcedureBody(
@@ -156,7 +165,11 @@ END;";
             string primaryKeyParameterName,
             IReadOnlyDictionary<Column, string> updateParameterNames = null,
             string primaryKeyOutputParameterName = null,
+            IReadOnlyList<Column> excludedColumns = null,
+            IReadOnlyList<Table> excludedTables = null,
             ReferenceGraph referenceGraph = null)
-            => new DeepCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, referenceGraph).ProcedureBody.ToString();
+            => new DeepCopyGenerator(catalog, rootTable, primaryKeyParameterName, updateParameterNames, primaryKeyOutputParameterName, excludedColumns, excludedTables, referenceGraph)
+            .ProcedureBody
+            .ToString();
     }
 }

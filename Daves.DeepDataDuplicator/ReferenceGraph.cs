@@ -9,10 +9,12 @@ namespace Daves.DeepDataDuplicator
 {
     public partial class ReferenceGraph : IReadOnlyList<ReferenceGraph.Vertex>
     {
-        public ReferenceGraph(Catalog catalog, Table rootTable)
+        public ReferenceGraph(Catalog catalog, Table rootTable, IReadOnlyList<Table> excludedTables = null)
         {
             if (!rootTable.HasIdentityColumnAsPrimaryKey)
                 throw new ArgumentException($"As the root table, {rootTable} needs an identity column as its primary key.");
+
+            ExcludedTables = excludedTables ?? new Table[0];
 
             var tables = new Stack<Table>();
             ComputeOrdering(tables, new HashSet<Table>(), new HashSet<Table>(), rootTable);
@@ -24,6 +26,7 @@ namespace Daves.DeepDataDuplicator
             Vertices.ForEach(v => v.Initialize());
         }
 
+        protected IReadOnlyList<Table> ExcludedTables { get; }
         public IReadOnlyList<Table> Tables { get; }
         public IReadOnlyList<Vertex> Vertices { get; }
 
@@ -37,6 +40,7 @@ namespace Daves.DeepDataDuplicator
             foreach (var dependentTable in table.ReferencingForeignKeys
                 .Where(k => k.IsEffectivelyRequired)
                 .Select(k => k.ParentTable)
+                .Where(t => !ExcludedTables.Contains(t))
                 .Distinct())
             {
                 // If a table is being visited, we're in the process of visiting all tables dependent upon it. Therefore, if dependentTable
