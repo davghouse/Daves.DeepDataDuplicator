@@ -9,11 +9,11 @@ namespace Daves.DeepDataDuplicator.UnitTests
     public class RootCopyGeneratorTests
     {
         [TestMethod]
-        public void GenerateDefaultProcedure_ForRootedWorld()
+        public void GenerateProcedure_Default_ForRootedWorld()
         {
             string procedure = RootCopyGenerator.GenerateProcedure(
                 catalog: RootedWorld.Catalog,
-                rootTable: RootedWorld.Catalog.FindTable("Nations"));
+                rootTable: RootedWorld.NationsTable);
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyNation]
@@ -96,12 +96,12 @@ END;", procedure);
         }
 
         [TestMethod]
-        public void GenerateCustomizedProcedure_ForUnrootedWorld()
+        public void GenerateProcedure_Customized_ForUnrootedWorld()
         {
             // Note it doesn't really make sense to use root copy on the unrooted world. Compare to the corresponding deep copy test.
             string procedure = RootCopyGenerator.GenerateProcedure(
                 catalog: UnrootedWorld.Catalog,
-                rootTable: UnrootedWorld.Catalog.FindTable("Nations"),
+                rootTable: UnrootedWorld.NationsTable,
                 procedureName: "RootCopyNation",
                 primaryKeyOutputParameterName: "insertedID");
 
@@ -225,12 +225,12 @@ END;", procedure);
         }
 
         [TestMethod]
-        public void GenerateScopedProcedure_ForRootedWorld()
+        public void GenerateProcedure_Scoped_ForRootedWorld()
         {
             // Nations is the top-level root, but we can also treat provinces as a root, leaving the nations table unaffected.
             string procedure = RootCopyGenerator.GenerateProcedure(
                 catalog: RootedWorld.Catalog,
-                rootTable: RootedWorld.Catalog.FindTable("Provinces"));
+                rootTable: RootedWorld.ProvincesTable);
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyProvince]
@@ -288,7 +288,7 @@ END;", procedure);
         }
 
         [TestMethod]
-        public void GenerateCustomizedProcedureBody_ForRootedWorld()
+        public void GenerateProcedureBody_Customized_ForRootedWorld()
         {
             var updateParameterNames = new Dictionary<Column, string>
             {
@@ -298,7 +298,7 @@ END;", procedure);
 
             string procedure = RootCopyGenerator.GenerateProcedureBody(
                 catalog: RootedWorld.Catalog,
-                rootTable: RootedWorld.Catalog.FindTable("Nations"),
+                rootTable: RootedWorld.NationsTable,
                 primaryKeyParameterName: "existingNationID",
                 primaryKeyOutputParameterName: "insertedNationID",
                 updateParameterNames: updateParameterNames);

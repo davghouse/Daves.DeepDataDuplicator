@@ -1,7 +1,5 @@
-﻿using Daves.DeepDataDuplicator.Metadata;
-using Daves.DeepDataDuplicator.UnitTests.SampleCatalogs;
+﻿using Daves.DeepDataDuplicator.UnitTests.SampleCatalogs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 
 namespace Daves.DeepDataDuplicator.UnitTests
 {
@@ -9,11 +7,11 @@ namespace Daves.DeepDataDuplicator.UnitTests
     public class DeepCopyGeneratorTests
     {
         [TestMethod]
-        public void GenerateDefaultProcedure_ForUnrootedWorld()
+        public void GenerateProcedure_Default_ForUnrootedWorld()
         {
             string procedure = DeepCopyGenerator.GenerateProcedure(
                 catalog: UnrootedWorld.Catalog,
-                rootTable: UnrootedWorld.Catalog.FindTable("Nations"));
+                rootTable: UnrootedWorld.NationsTable);
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[CopyNation]
@@ -138,11 +136,11 @@ END;", procedure);
         }
 
         [TestMethod]
-        public void GenerateDefaultProcedure_ForRootedWorld()
+        public void GenerateProcedure_Default_ForRootedWorld()
         {
             string procedure = DeepCopyGenerator.GenerateProcedure(
                 catalog: RootedWorld.Catalog,
-                rootTable: RootedWorld.Catalog.FindTable("Nations"));
+                rootTable: RootedWorld.NationsTable);
 
             // Deep copy can be used as a root copy, and in the rooted world case both generate the same procedure.
             Assert.AreEqual(
@@ -226,25 +224,22 @@ END;", procedure);
         }
 
         [TestMethod]
-        public void GenerateCustomizedProcedure_ForUnrootedWorld()
+        public void GenerateProcedure_Customized_ForUnrootedWorld()
         {
-            var updateParameters = new Dictionary<Column, Parameter>
-            {
-                { UnrootedWorld.Catalog.FindColumn("Provinces", "Motto"), new Parameter("@toMotto", "NVARCHAR(50)") },
-            };
-
             string procedure = DeepCopyGenerator.GenerateProcedure(
                 catalog: UnrootedWorld.Catalog,
-                rootTable: UnrootedWorld.Catalog.FindTable("Nations"),
+                rootTable: UnrootedWorld.NationsTable,
                 procedureName: "DeepCopyNation",
                 primaryKeyParameterName: "@existingNationID",
                 primaryKeyOutputParameterName: "@insertedNationID",
-                updateParameters: updateParameters);
+                excludedColumns: new[]
+                {
+                    UnrootedWorld.Catalog.FindColumn("Provinces", "Motto")
+                });
 
             Assert.AreEqual(
 @"CREATE PROCEDURE [dbo].[DeepCopyNation]
     @existingNationID INT,
-    @toMotto NVARCHAR(50),
     @insertedNationID INT = NULL OUTPUT
 AS
 BEGIN
@@ -299,12 +294,10 @@ BEGIN
     INSERT (
         [NationID],
         [Name],
-        [Motto],
         [LeaderResidentID])
     VALUES (
         j0InsertedID,
         Source.[Name],
-        @toMotto,
         Source.[LeaderResidentID])
     OUTPUT Source.[ID], Inserted.[ID]
     INTO @ProvinceIDPairs;
@@ -367,12 +360,12 @@ END;", procedure);
         }
 
         [TestMethod]
-        public void GenerateScopedProcedure_ForUnrootedWorld()
+        public void GenerateProcedure_Scoped_ForUnrootedWorld()
         {
             // Nations is the top-level root, but we can also treat provinces as a root, leaving the nations table unaffected.
             string procedure = DeepCopyGenerator.GenerateProcedure(
                 catalog: UnrootedWorld.Catalog,
-                rootTable: UnrootedWorld.Catalog.FindTable("Provinces"),
+                rootTable: UnrootedWorld.ProvincesTable,
                 primaryKeyOutputParameterName: "insertedID");
 
             Assert.AreEqual(

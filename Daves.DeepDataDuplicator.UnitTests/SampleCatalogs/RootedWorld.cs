@@ -7,6 +7,9 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
         // A nation has provinces, and provinces have residents. A Nation row acts as the top-level root, because
         // when a nation row is copied, all rows that get copied depend only upon the copied nation row, not a different one.
         public static readonly Catalog Catalog;
+        public static Table NationsTable => Catalog.FindTable("Nations");
+        public static Table ProvincesTable => Catalog.FindTable("Provinces");
+        public static Table ResidentsTable => Catalog.FindTable("Residents");
 
         static RootedWorld()
         {

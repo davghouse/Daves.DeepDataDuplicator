@@ -11,6 +11,9 @@ namespace Daves.DeepDataDuplicator.UnitTests.SampleCatalogs
         // do depend upon the copied nation row, but can also depend upon non-copied nation rows. Some other
         // nullable references are included: spouse, favorite province, and leader.
         public static readonly Catalog Catalog;
+        public static Table NationsTable => Catalog.FindTable("Nations");
+        public static Table ProvincesTable => Catalog.FindTable("Provinces");
+        public static Table ResidentsTable => Catalog.FindTable("Residents");
 
         static UnrootedWorld()
         {
