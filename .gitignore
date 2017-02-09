@@ -209,6 +209,13 @@ orleans.codegen.cs
 # RIA/Silverlight projects
 Generated_Code/
 
+# Backup & report files from converting an old project file
+# to a newer Visual Studio version. Backup files are not needed,
+# because we have git ;-)
+_UpgradeReport_Files/
+UpgradeLog*.XML
+UpgradeLog*.htm
+
 # SQL Server files
 *.mdf
 *.ldf
@@ -265,6 +272,3 @@ __pycache__/
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
-
-# Unzipped backups
-*.bak
