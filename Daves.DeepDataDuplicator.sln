@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26127.3
+VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Daves.DeepDataDuplicator", "Daves.DeepDataDuplicator\Daves.DeepDataDuplicator.csproj", "{F646D199-81F5-4998-944E-7CF7EB5D5B89}"
 EndProject
@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daves.DeepDataDuplicator.UnitTests", "Daves.DeepDataDuplicator.UnitTests\Daves.DeepDataDuplicator.UnitTests.csproj", "{590C8F6F-193E-4A04-9EDC-1D84F234CF1B}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Daves.DeepDataDuplicator.IntegrationTests.World", "Daves.DeepDataDuplicator.IntegrationTests.World\Daves.DeepDataDuplicator.IntegrationTests.World.sqlproj", "{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daves.DeepDataDuplicator.IntegrationTests", "Daves.DeepDataDuplicator.IntegrationTests\Daves.DeepDataDuplicator.IntegrationTests.csproj", "{31C9CD46-41D6-419B-88DC-654184A8D472}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +52,36 @@ Global
 		{590C8F6F-193E-4A04-9EDC-1D84F234CF1B}.Release|x64.Build.0 = Release|x64
 		{590C8F6F-193E-4A04-9EDC-1D84F234CF1B}.Release|x86.ActiveCfg = Release|x86
 		{590C8F6F-193E-4A04-9EDC-1D84F234CF1B}.Release|x86.Build.0 = Release|x86
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|x64.Build.0 = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|x86.Build.0 = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|x64.ActiveCfg = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|x64.Build.0 = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|x64.Deploy.0 = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|x86.ActiveCfg = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|x86.Build.0 = Release|Any CPU
+		{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}.Release|x86.Deploy.0 = Release|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Debug|x64.Build.0 = Debug|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Debug|x86.Build.0 = Debug|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Release|x64.ActiveCfg = Release|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Release|x64.Build.0 = Release|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Release|x86.ActiveCfg = Release|Any CPU
+		{31C9CD46-41D6-419B-88DC-654184A8D472}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

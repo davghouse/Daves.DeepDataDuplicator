@@ -1,0 +1,18 @@
+﻿SET IDENTITY_INSERT [dbo].[Provinces] ON
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (1, 1, N'Alberta', N'Fortis et liber', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (2, 1, N'British Columbia', N'Splendor sine occasu', 3)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (3, 1, N'Manitoba', N'Gloriosus et liber', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (4, 1, N'New Brunswick', N'Spem reduxit', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (5, 1, N'Newfoundland and Labrador', N'Quaerite primum regnum dei', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (6, 1, N'Nova Scotia', N'Munit haec et altera vincit', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (7, 1, N'Ontario', N'Ut incepit fidelis sic permanet', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (8, 1, N'Prince Edward Island', N'Parva sub ingenti', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (9, 1, N'Quebec', N'Je me souviens', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (10, 1, N'Saskatchewan', N'Multis e gentibus vires', NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (11, 2, N'Malampa', NULL, NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (13, 2, N'Penama', NULL, NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (14, 2, N'Sanma', NULL, NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (15, 2, N'Shefa', NULL, NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (16, 2, N'Tafea', NULL, NULL)
+INSERT INTO [dbo].[Provinces] ([ID], [NationID], [Name], [Motto], [LeaderResidentID]) VALUES (17, 2, N'Torba', NULL, NULL)
+SET IDENTITY_INSERT [dbo].[Provinces] OFF
