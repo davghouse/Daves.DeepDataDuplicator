@@ -74,9 +74,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Daves.DeepDataDuplicator.IntegrationTests.World\Daves.DeepDataDuplicator.IntegrationTests.World.sqlproj">
+    <ProjectReference Include="..\Daves.DeepDataDuplicator.IntegrationTests.Database\Daves.DeepDataDuplicator.IntegrationTests.Database.sqlproj">
       <Project>{35ba536e-9b6a-4f51-8d3c-25fb9930f0a9}</Project>
-      <Name>Daves.DeepDataDuplicator.IntegrationTests.World</Name>
+      <Name>Daves.DeepDataDuplicator.IntegrationTests.Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\Daves.DeepDataDuplicator\Daves.DeepDataDuplicator.csproj">
       <Project>{f646d199-81f5-4998-944e-7cf7eb5d5b89}</Project>

@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daves.DeepDataDuplicator.UnitTests", "Daves.DeepDataDuplicator.UnitTests\Daves.DeepDataDuplicator.UnitTests.csproj", "{590C8F6F-193E-4A04-9EDC-1D84F234CF1B}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Daves.DeepDataDuplicator.IntegrationTests.World", "Daves.DeepDataDuplicator.IntegrationTests.World\Daves.DeepDataDuplicator.IntegrationTests.World.sqlproj", "{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Daves.DeepDataDuplicator.IntegrationTests.Database", "Daves.DeepDataDuplicator.IntegrationTests.Database\Daves.DeepDataDuplicator.IntegrationTests.Database.sqlproj", "{35BA536E-9B6A-4F51-8D3C-25FB9930F0A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daves.DeepDataDuplicator.IntegrationTests", "Daves.DeepDataDuplicator.IntegrationTests\Daves.DeepDataDuplicator.IntegrationTests.csproj", "{31C9CD46-41D6-419B-88DC-654184A8D472}"
 EndProject

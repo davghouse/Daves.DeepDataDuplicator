@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <Name>Daves.DeepDataDuplicator.IntegrationTests.World</Name>
+    <Name>Daves.DeepDataDuplicator.IntegrationTests.Database</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{35ba536e-9b6a-4f51-8d3c-25fb9930f0a9}</ProjectGuid>
@@ -12,8 +12,8 @@
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
-    <RootNamespace>Daves.DeepDataDuplicator.IntegrationTests.World</RootNamespace>
-    <AssemblyName>Daves.DeepDataDuplicator.IntegrationTests.World</AssemblyName>
+    <RootNamespace>Daves.DeepDataDuplicator.IntegrationTests.Database</RootNamespace>
+    <AssemblyName>Daves.DeepDataDuplicator.IntegrationTests.Database</AssemblyName>
     <ModelCollation>1033,CI</ModelCollation>
     <DefaultFileStructure>BySchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
@@ -72,7 +72,7 @@
     <None Include="Data\Nations.data.sql" />
     <None Include="Data\Provinces.data.sql" />
     <None Include="Data\Residents.data.sql" />
-    <None Include="Daves.DeepDataDuplicator.IntegrationTests.World.publish.xml" />
+    <None Include="Daves.DeepDataDuplicator.IntegrationTests.Database.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment.sql" />
