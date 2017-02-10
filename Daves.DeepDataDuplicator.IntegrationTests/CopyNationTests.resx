@@ -145,38 +145,78 @@ WHERE ID &lt;= @maxProvinceID
 ORDER BY ID ASC;
 
 SELECT *
-FROM dbo.Residents
+FROM Residents
 WHERE ID &lt;= @maxResidentID
 ORDER BY ID ASC;
 
 -- Data created by the copy is harder, because the IDs aren't guaranteed to be the same.
 -- Not an issue with identity columns incrementing, just the unguaranteed order of row copies.
--- Just an approximation, not actually testing if the copy is isomorphic with the original.
-SELECT *
-FROM dbo.Nations
-WHERE ID &gt; @maxNationID -- This should be just a single row with ID = 3, so it's easy.
 
+-- Checking Nations.
 SELECT
-    NationID, -- NationID just equal 3, so no case statement here.
-    Name,
-    Motto,
-    CASE WHEN LeaderResidentID &gt; @maxResidentID THEN 1 ELSE 0 END ReferencesNewLeaderResident
-FROM dbo.Provinces
+    Name NationName,
+    FoundedDate NationFoundedDate
+FROM Nations
+WHERE ID &gt; @maxNationID;
+
+-- Checking Provinces, ignoring non-dependent references.
+SELECT
+    Name ProvinceName,
+    Motto ProvinceMotto
+FROM Provinces
 WHERE NationID &gt; @maxNationID
-ORDER BY Name ASC
+ORDER BY Name ASC;
 
+-- Checking Provinces' leader resident reference.
 SELECT
-    Name,
-    CASE WHEN ProvinceID &gt; @maxProvinceID THEN 1 ELSE 0 END ReferencesNewProvince,
-    CASE WHEN NationalityNationID &gt; @maxNationID THEN 1 ELSE 0 END ReferencesNewNationality,
-    CASE WHEN SpouseResidentID &gt; @maxResidentID THEN 1 ELSE 0 END ReferencesNewSpouse,
-    CASE WHEN FavoriteProvinceID &gt; @maxProvinceID THEN 1 ELSE 0 END ReferencesNewFavoriteProvince
-FROM dbo.Residents
-WHERE ProvinceID &gt; @maxProvinceID
-    OR NationalityNationID &gt; @maxNationID
-ORDER BY Name ASC
+    p.Name ProvinceName,
+    r.Name LeaderResidentName,
+    CASE WHEN r.ID &gt; @maxResidentID THEN 1 ELSE 0 END ReferencesNewLeaderResident
+FROM Provinces p
+LEFT JOIN Residents r
+    ON p.LeaderResidentID = r.ID
+WHERE p.NationID &gt; @maxNationID
+ORDER BY p.Name ASC;
 
-SELECT @RC AS RC;
+-- Checking Residents, ignoring non-dependent references.
+SELECT
+    r.Name ResidentName,
+    p.Name ProvinceName,
+    n.Name NationName,
+    CASE WHEN p.ID &gt; @maxProvinceID THEN 1 ELSE 0 END ReferencesNewProvince,
+    CASE WHEN n.ID &gt; @maxNationID THEN 1 ELSE 0 END ReferencesNewNationality
+FROM Residents r
+JOIN Provinces p
+    ON r.ProvinceID = p.ID
+JOIN Nations n
+    ON r.NationalityNationID = n.ID
+WHERE r.ProvinceID &gt; @maxProvinceID
+    OR r.NationalityNationID &gt; @maxNationID
+ORDER BY r.Name ASC;
+
+-- Checking Residents' spouse reference.
+SELECT
+    r.Name ResidentName,
+    sr.Name SpouseResidentName,
+    CASE WHEN sr.ID &gt; @maxResidentID THEN 1 ELSE 0 END ReferencesNewSpouse
+FROM Residents r
+LEFT JOIN Residents sr
+    ON r.SpouseResidentID = sr.ID
+WHERE r.ProvinceID &gt; @maxProvinceID
+    OR r.NationalityNationID &gt; @maxNationID
+ORDER BY r.Name ASC;
+
+-- Checking Residents' favorite province reference.
+SELECT
+    r.Name ResidentName,
+    p.Name FavoriteProvinceName,
+    CASE WHEN p.ID &gt; @maxProvinceID THEN 1 ELSE 0 END ReferencesNewFavoriteProvince
+FROM Residents r
+LEFT JOIN Provinces p
+    ON r.FavoriteProvinceID = p.ID
+WHERE r.ProvinceID &gt; @maxProvinceID
+    OR r.NationalityNationID &gt; @maxNationID
+ORDER BY r.Name ASC;
 
 ROLLBACK TRAN;
 </value>

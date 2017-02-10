@@ -59,7 +59,7 @@ namespace Daves.DeepDataDuplicator.IntegrationTests
             // 
             // checksum
             // 
-            checksum.Checksum = "1403054032";
+            checksum.Checksum = "1636896192";
             checksum.Enabled = true;
             checksum.Name = "checksum";
             // 
