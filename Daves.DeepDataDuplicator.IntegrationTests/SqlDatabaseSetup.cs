@@ -32,7 +32,9 @@ namespace Daves.DeepDataDuplicator.IntegrationTests
 
                     using (IDbCommand command = connection.CreateCommand())
                     {
-                        command.CommandText = DeepCopyGenerator.GenerateProcedure(connection, "Nations");
+                        command.CommandText = DeepCopyGenerator.GenerateProcedure(
+                            connection: connection,
+                            rootTableName: "Nations");
                         command.ExecuteNonQuery();
                     }
                 }
