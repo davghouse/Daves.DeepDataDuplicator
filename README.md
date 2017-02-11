@@ -89,8 +89,8 @@ Starting from the root table, recursively discover tables with dependent referen
 
 Notes
 -----
-As seen above, the root table can have a dependent reference off to some other table, with the recursion never discovering that table. In that case the dependent reference is copied without being updated just like any other non-reference column.
+As seen above, the root table can have a dependent reference off to some other table, with the recursion never discovering that table. In that case, the dependent reference is copied without being updated just like any other non-reference column.
 
 The copying relies on tables having an identity column as a primary key, except for tables without incoming dependent references **and** without outgoing non-dependent references (e.g., cross-reference tables are fine). To understand the limitations better, search the code for 'ArgumentException'.
 
-Triggers should be reviewed to make sure they won't cause problems, or disabled before running the procedure. The main concern is that non-dependent references of inserted rows temporarily reference non-inserted rows. In my case triggers were being used to update some aggregate on a table being dependently referenced, so there was no problem.
+Triggers should be reviewed to make sure they won't cause problems, or they should be disabled before running the procedure. The main concern is that non-dependent references of inserted rows temporarily reference non-inserted rows. In my case triggers were being used to update some aggregate on a table being dependently referenced, so there was no problem.
