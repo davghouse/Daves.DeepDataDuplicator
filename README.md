@@ -3,6 +3,8 @@ Dave's Deep Data Duplicator
 
 Uses database metadata to generate deep copy procedures for SQL Server.
 
+Available as a [NuGet Package](https://www.nuget.org/packages/Daves.DeepDataDuplicator/).
+
 Introduction
 ------------
 
