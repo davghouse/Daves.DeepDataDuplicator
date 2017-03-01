@@ -9,24 +9,20 @@ namespace Daves.DeepDataDuplicator.IntegrationTests
     [TestClass]
     public class SqlDatabaseSetup
     {
-        public static readonly string ConnectionString;
-
-        static SqlDatabaseSetup()
-        {
-            using (var executionContext = SqlDatabaseTestClass.TestService.OpenExecutionContext())
-            {
-                ConnectionString = executionContext.Connection.ConnectionString;
-            }
-        }
-
         [AssemblyInitialize]
         public static void InitializeAssembly(TestContext testContext)
         {
             SqlDatabaseTestClass.TestService.DeployDatabaseProject();
 
+            string connectionString;
+            using (var executionContext = SqlDatabaseTestClass.TestService.OpenExecutionContext())
+            {
+                connectionString = executionContext.Connection.ConnectionString;
+            }
+
             using (var transaction = new TransactionScope())
             {
-                using (var connection = new SqlConnection(ConnectionString))
+                using (var connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
 
