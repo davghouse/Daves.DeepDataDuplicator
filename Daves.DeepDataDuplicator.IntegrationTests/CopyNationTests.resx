@@ -138,7 +138,6 @@ FROM Nations
 WHERE ID &lt;= @maxNationID
 ORDER BY ID ASC;
 
-
 SELECT *
 FROM Provinces
 WHERE ID &lt;= @maxProvinceID

@@ -81,7 +81,7 @@ namespace Daves.DeepDataDuplicator
             var catalog = new Catalog(connection);
             var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static new string GenerateProcedure(
@@ -96,7 +96,7 @@ namespace Daves.DeepDataDuplicator
             var catalog = new Catalog(connection, transaction);
             var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static new string GenerateProcedure(

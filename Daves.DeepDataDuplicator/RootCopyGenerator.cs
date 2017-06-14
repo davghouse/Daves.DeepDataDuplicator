@@ -56,13 +56,13 @@ namespace Daves.DeepDataDuplicator
                 .Where(v => v.Table.HasIdentityColumnAsPrimaryKey)
                 .Where(v => v.IsReferenced() || v.NonDependentReferences.Any())
                 .Select(v => v.Table);
-            bool tableNamesAreDistinct = relevantTables
+            bool areTableNamesDistinct = relevantTables
                 .Select(t => t.Name)
                 .Distinct()
                 .Count() == relevantTables.Count();
             foreach (var table in relevantTables)
             {
-                string tableVariableName = $"@{(tableNamesAreDistinct ? "" : table.Schema.SpacelessName)}{table.SingularSpacelessName}IDPairs";
+                string tableVariableName = $"@{(areTableNamesDistinct ? "" : table.Schema.SpacelessName)}{table.SingularSpacelessName}IDPairs";
                 TableVariableNames.Add(table, tableVariableName);
 
                 ProcedureBody.AppendLine($@"
@@ -121,7 +121,7 @@ namespace Daves.DeepDataDuplicator
 ? $@"FROM (
             SELECT *
             FROM [{table.Schema}].[{table.Name}]
-            WHERE {string.Join($"{Separators.Nlw16} OR ", dependentReferences.Select(r => $"[{r.ParentColumn.Name}] IN (SELECT ExistingID FROM {TableVariableNames[r.ReferencedTable]})"))}
+            WHERE {string.Join($"{Separators.Nlw16}OR ", dependentReferences.Select(r => $"[{r.ParentColumn.Name}] IN (SELECT ExistingID FROM {TableVariableNames[r.ReferencedTable]})"))}
         ) AS copy"
 : $@"FROM [{table.Schema.Name}].[{table.Name}] copy";
             var joinClauses = dependentReferences
@@ -200,7 +200,7 @@ namespace Daves.DeepDataDuplicator
             var catalog = new Catalog(connection);
             var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static string GenerateProcedure(
@@ -215,7 +215,7 @@ namespace Daves.DeepDataDuplicator
             var catalog = new Catalog(connection, transaction);
             var rootTable = catalog.FindTable(rootTableName, rootTableSchemaName);
 
-            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName);
+            return GenerateProcedure(catalog, rootTable, procedureName, primaryKeyParameterName, null, primaryKeyOutputParameterName);
         }
 
         public static string GenerateProcedure(

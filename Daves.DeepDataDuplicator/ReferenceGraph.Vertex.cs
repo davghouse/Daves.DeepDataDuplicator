@@ -30,8 +30,8 @@ namespace Daves.DeepDataDuplicator
             protected virtual void InitializeDependentReferences()
             {
                 var requiredForeignKeys = Table.ChildForeignKeys
-                    .Where(k => ReferenceGraph.Tables.Contains(k.ReferencedTable))
-                    .Where(k => k.IsEffectivelyRequired);
+                    .Where(k => k.IsEffectivelyRequired)
+                    .Where(k => ReferenceGraph.Tables.Contains(k.ReferencedTable));
 
                 foreach (var foreignKey in requiredForeignKeys)
                 {
