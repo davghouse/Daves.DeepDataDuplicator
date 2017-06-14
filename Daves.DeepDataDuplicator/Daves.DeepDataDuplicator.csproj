@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Targetting 4.5.1 only to avoid spamming the References list of .NET Framework projects. -->
     <TargetFrameworks>netstandard1.2;net451</TargetFrameworks>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Copyright>© 2017 Dave</Copyright>
     <Description>Uses database metadata to generate deep copy procedures for SQL Server.</Description>
     <PackageTags>sql, deep, copy, procedure, generator, root, metadata</PackageTags>
@@ -13,13 +13,14 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <NoWarn>1701;1702;1705</NoWarn>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <PackageReleaseNotes>1.0.0: First release
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <PackageReleaseNotes>1.0.1: Fixed primaryKeyOutputParameterName not being passed all the way through
+1.0.0: First release
 0.5.0: API tweaks, ability to exclude specific columns and tables
 0.4.0: API tweaks, ability to specify output parameter 
 0.3.0: SET XACT_ABORT ON and surround body in transaction
 0.1.0: Beta release w/ limited test coverage</PackageReleaseNotes>
-    <FileVersion>1.0.0.0</FileVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <!--TODO pending NuGet bug fix: <IncludeSource>true</IncludeSource>-->
