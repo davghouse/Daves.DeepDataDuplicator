@@ -4,5 +4,8 @@
     <StartupScript>(Blank)</StartupScript>
     <StartAction>StartNone</StartAction>
     <CreateNewDatabase>True</CreateNewDatabase>
+	<DefaultPublishProfile>Daves.DeepDataDuplicator.IntegrationTests.Database.publish.xml</DefaultPublishProfile>
+	<AllowIncompatiblePlatform>True</AllowIncompatiblePlatform>
+	<BlockOnPossibleDataLoss>False</BlockOnPossibleDataLoss>
   </PropertyGroup>
 </Project>
