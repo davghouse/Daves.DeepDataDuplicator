@@ -31,14 +31,17 @@ FROM sys.tables";
 
         protected virtual string ColumnQuery =>
 @"SELECT
-    object_id tableId,
-    name name,
-    column_id columnId,
-    is_nullable isNullable,
-    is_identity isIdentity,
-    is_computed isComputed
-FROM sys.columns
-WHERE object_id IN (SELECT object_id FROM sys.tables)";
+    c.object_id tableId,
+    c.name name,
+    c.column_id columnId,
+    c.is_nullable isNullable,
+    c.is_identity isIdentity,
+    c.is_computed isComputed,
+    convert(bit, case t.name when 'timestamp' then 1 else 0 end) isTimestamp
+FROM sys.columns c
+join sys.types t
+  on t.user_type_id = c.user_type_id
+WHERE c.object_id IN (SELECT object_id FROM sys.tables)";
 
         protected virtual string PrimaryKeyQuery =>
 @"SELECT
@@ -100,7 +103,7 @@ WHERE parent_object_id IN (SELECT object_id FROM sys.tables)";
 
         public virtual IReadOnlyList<Column> QueryColumns()
             => Query(ColumnQuery,
-                r => new Column(r["tableId"], r["name"], r["columnId"], r["isNullable"], r["isIdentity"], r["isComputed"]))
+                r => new Column(r["tableId"], r["name"], r["columnId"], r["isNullable"], r["isIdentity"], r["isComputed"], r["isTimestamp"]))
             .ToReadOnlyList();
 
         public virtual IReadOnlyList<PrimaryKey> QueryPrimaryKeys()
