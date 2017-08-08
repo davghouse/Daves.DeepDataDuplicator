@@ -8,6 +8,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+!Daves.DeepDataDuplicator.IntegrationTests.Database.sqlproj.user
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

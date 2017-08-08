@@ -73,6 +73,7 @@
     <None Include="Data\Provinces.data.sql" />
     <None Include="Data\Residents.data.sql" />
     <None Include="Daves.DeepDataDuplicator.IntegrationTests.Database.publish.xml" />
+    <None Include="Daves.DeepDataDuplicator.IntegrationTests.Database.sqlproj.user" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment.sql" />
